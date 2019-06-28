@@ -2,85 +2,71 @@ package com.vincent.demo.service;
 
 import com.vincent.demo.entity.Product;
 import com.vincent.demo.exception.NotFoundException;
-import com.vincent.demo.exception.UnprocessableException;
 import com.vincent.demo.parameter.QueryParameter;
+import com.vincent.demo.repository.ProductRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 public class ProductService {
 
-    private List<Product> productDB = new ArrayList<>();
+    @Autowired
+    private ProductRepository repository;
 
     public Product getProduct(String id) {
-        return productDB.stream()
-                .filter(p -> p.getId().equals(id))
-                .findFirst()
+        return repository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Can't find product."));
     }
 
     public Product createProduct(Product request) {
-        boolean isIdDuplicated = productDB.stream()
-                .anyMatch(p -> p.getId().equals(request.getId()));
-        if (isIdDuplicated) {
-            throw new UnprocessableException("Id is duplicated.");
-        }
-
         Product product = new Product();
-        product.setId(request.getId());
         product.setName(request.getName());
         product.setPrice(request.getPrice());
-        productDB.add(product);
 
-        return product;
+        return repository.insert(product);
     }
 
     public Product replaceProduct(String id, Product request) {
         Product oldProduct = getProduct(id);
-        int productIndex = productDB.indexOf(oldProduct);
 
         Product product = new Product();
         product.setId(oldProduct.getId());
         product.setName(request.getName());
         product.setPrice(request.getPrice());
-        productDB.set(productIndex, product);
 
-        return product;
+        return repository.save(product);
     }
 
     public void deleteProduct(String id) {
-        Optional<Product> productOp = productDB.stream()
-                .filter(p -> p.getId().equals(id))
-                .findFirst();
-
-        if (productOp.isPresent()) {
-            Product product = productOp.get();
-            productDB.remove(product);
-        }
+        repository.deleteById(id);
     }
+
     public List<Product> getProducts(QueryParameter param) {
-        Stream<Product> stream = productDB.stream();
+        String orderBy = param.getOrderBy();
+        String sortRule = param.getSortRule();
+        String keyword = param.getKeyword();
 
-        if (param.getKeyword() != null) {
-            stream = stream
-                    .filter(p -> p.getName().contains(param.getKeyword()));
+        Sort sort = null;
+        if (orderBy != null && sortRule != null) {
+            Sort.Direction direction = sortRule.equals("asc")
+                    ? Sort.Direction.ASC
+                    : Sort.Direction.DESC;
+
+            sort = new Sort(direction, orderBy);
         }
 
-        if ("price".equals(param.getOrderBy()) && param.getSortRule() != null) {
-            Comparator<Product> comparator = param.getSortRule().equals("asc")
-                    ? Comparator.comparing(Product::getPrice)
-                    : Comparator.comparing(Product::getPrice).reversed();
-
-            stream = stream.sorted(comparator);
+        if (keyword == null) {
+            keyword = "";
         }
 
-        return stream.collect(Collectors.toList());
+        if (sort != null) {
+            return repository.findByNameLike(keyword, sort);
+        }
+
+        return repository.findByNameLike(keyword);
     }
 
 }
