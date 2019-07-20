@@ -144,6 +144,43 @@ public class ProductTest {
                 .andExpect(jsonPath("$[3].id").value(p3.getId()));
     }
 
+    @Test
+    public void get400WhenCreateProductWithoutName() throws Exception {
+        JSONObject request = new JSONObject();
+        request.put("price", 450);
+
+        mockMvc.perform(post("/products")
+                .headers(httpHeaders)
+                .content(request.toString()))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void get400WhenCreateProductWithoutPrice() throws Exception {
+        JSONObject request = new JSONObject();
+        request.put("name", "Harry Potter");
+
+        mockMvc.perform(post("/products")
+                .headers(httpHeaders)
+                .content(request.toString()))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void get400WhenReplaceProductWithNegativePrice() throws Exception {
+        Product product = createProduct("Harry Potter", 450);
+        productRepository.insert(product);
+
+        JSONObject request = new JSONObject();
+        request.put("name", "Harry Potter");
+        request.put("price", -100);
+
+        mockMvc.perform(put("/products/" + product.getId())
+                .headers(httpHeaders)
+                .content(request.toString()))
+                .andExpect(status().isBadRequest());
+    }
+
     private Product createProduct(String name, int price) {
         Product product = new Product();
         product.setName(name);

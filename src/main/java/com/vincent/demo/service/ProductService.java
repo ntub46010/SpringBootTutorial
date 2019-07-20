@@ -1,6 +1,7 @@
 package com.vincent.demo.service;
 
 import com.vincent.demo.entity.Product;
+import com.vincent.demo.entity.ProductRequest;
 import com.vincent.demo.exception.NotFoundException;
 import com.vincent.demo.parameter.QueryParameter;
 import com.vincent.demo.repository.ProductRepository;
@@ -21,7 +22,7 @@ public class ProductService {
                 .orElseThrow(() -> new NotFoundException("Can't find product."));
     }
 
-    public Product createProduct(Product request) {
+    public Product createProduct(ProductRequest request) {
         Product product = new Product();
         product.setName(request.getName());
         product.setPrice(request.getPrice());
@@ -29,7 +30,7 @@ public class ProductService {
         return repository.insert(product);
     }
 
-    public Product replaceProduct(String id, Product request) {
+    public Product replaceProduct(String id, ProductRequest request) {
         Product oldProduct = getProduct(id);
 
         Product product = new Product();
