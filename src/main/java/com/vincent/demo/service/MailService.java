@@ -1,6 +1,8 @@
 package com.vincent.demo.service;
 
+import com.vincent.demo.config.MailConfig;
 import com.vincent.demo.entity.SendMailRequest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.mail.*;
@@ -12,24 +14,21 @@ import java.util.Properties;
 @Service
 public class MailService {
 
-    public void sendMail(SendMailRequest request) {
-        final String host = "smtp.gmail.com";
-        final int port = 587;
-        final boolean enableAuth = true;
-        final boolean enableStarttls = true;
-        final String userAddress = "your_account@gmail.com";
-        final String pwd = "your_password";
-        final String userDisplayName = "Junior Software Engineer";
+    @Autowired
+    private MailConfig mailConfig;
 
+    public void sendMail(SendMailRequest request) {
         Properties props = new Properties();
-        props.put("mail.smtp.host", host);
-        props.put("mail.smtp.port", port);
-        props.put("mail.smtp.auth", String.valueOf(enableAuth));
-        props.put("mail.smtp.starttls.enable", String.valueOf(enableStarttls));
+        props.put("mail.smtp.host", mailConfig.getHost());
+        props.put("mail.smtp.port", mailConfig.getPort());
+        props.put("mail.smtp.auth", String.valueOf(mailConfig.isAuthEnabled()));
+        props.put("mail.smtp.starttls.enable",
+                String.valueOf(mailConfig.isStarttlsEnabled()));
 
         Session session = Session.getInstance(props, new Authenticator(){
             protected PasswordAuthentication getPasswordAuthentication(){
-                return new PasswordAuthentication(userAddress, pwd);
+                return new PasswordAuthentication(
+                        mailConfig.getUserAddress(), mailConfig.getUserPwd());
             }
         });
 
@@ -37,7 +36,8 @@ public class MailService {
             Message message = new MimeMessage(session);
             message.setSubject(request.getSubject());
             message.setContent(request.getContent(), "text/html; charset=UTF-8");
-            message.setFrom(new InternetAddress(userAddress, userDisplayName));
+            message.setFrom(new InternetAddress(
+                    mailConfig.getUserAddress(), mailConfig.getUserDisplayName()));
             for (String address : request.getReceivers()) {
                 message.addRecipient(Message.RecipientType.TO, new InternetAddress(address));
             }
