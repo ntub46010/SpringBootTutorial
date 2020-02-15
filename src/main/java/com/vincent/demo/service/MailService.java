@@ -1,45 +1,35 @@
 package com.vincent.demo.service;
 
-import com.vincent.demo.config.MailConfig;
 import com.vincent.demo.entity.SendMailRequest;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import java.util.List;
 import java.util.Properties;
 
-@Service
 public class MailService {
+    private Properties props;
+    private InternetAddress fromAddress;
+    private Authenticator authenticator;
 
-    @Autowired
-    private MailConfig mailConfig;
+    public MailService(Properties props, InternetAddress fromAddress,
+                       Authenticator authenticator) {
+        this.props = props;
+        this.fromAddress = fromAddress;
+        this.authenticator = authenticator;
+    }
 
     public void sendMail(SendMailRequest request) {
-        Properties props = new Properties();
-        props.put("mail.smtp.host", mailConfig.getHost());
-        props.put("mail.smtp.port", mailConfig.getPort());
-        props.put("mail.smtp.auth", String.valueOf(mailConfig.isAuthEnabled()));
-        props.put("mail.smtp.starttls.enable",
-                String.valueOf(mailConfig.isStarttlsEnabled()));
-
-        Session session = Session.getInstance(props, new Authenticator(){
-            protected PasswordAuthentication getPasswordAuthentication(){
-                return new PasswordAuthentication(
-                        mailConfig.getUserAddress(), mailConfig.getUserPwd());
-            }
-        });
+        Session session = Session.getInstance(props, authenticator);
 
         try {
             Message message = new MimeMessage(session);
             message.setSubject(request.getSubject());
             message.setContent(request.getContent(), "text/html; charset=UTF-8");
-            message.setFrom(new InternetAddress(
-                    mailConfig.getUserAddress(), mailConfig.getUserDisplayName()));
+            message.setFrom(fromAddress);
             for (String address : request.getReceivers()) {
-                message.addRecipient(Message.RecipientType.TO, new InternetAddress(address));
+                message.addRecipient(Message.RecipientType.TO,
+                        new InternetAddress(address));
             }
 
             Transport.send(message);

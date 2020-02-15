@@ -5,17 +5,17 @@ import com.vincent.demo.entity.ProductRequest;
 import com.vincent.demo.exception.NotFoundException;
 import com.vincent.demo.parameter.QueryParameter;
 import com.vincent.demo.repository.ProductRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Service
 public class ProductService {
 
-    @Autowired
     private ProductRepository repository;
+
+    public ProductService(ProductRepository repository) {
+        this.repository = repository;
+    }
 
     public Product getProduct(String id) {
         return repository.findById(id)
