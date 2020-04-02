@@ -6,11 +6,11 @@ import javax.validation.constraints.NotNull;
 
 public class ProductRequest {
 
-    @NotEmpty(message = "Product name isn't provided.")
+    @NotEmpty(message = "Product name is undefined.")
     private String name;
 
     @NotNull
-    @Min(value = 0, message = "Price should be greater or equal to 0.")
+    @Min(value = 0, message = "Price should be positive or 0.")
     private Integer price;
 
     public String getName() {

@@ -2,6 +2,7 @@ package com.vincent.demo.converter;
 
 import com.vincent.demo.entity.Product;
 import com.vincent.demo.entity.ProductResponse;
+import com.vincent.demo.entity.ProductRequest;
 
 public class ProductConverter {
 
@@ -16,5 +17,13 @@ public class ProductConverter {
         response.setPrice(product.getPrice());
 
         return response;
+    }
+
+    public static Product toProduct(ProductRequest request) {
+        Product product = new Product();
+        product.setName(request.getName());
+        product.setPrice(request.getPrice());
+
+        return product;
     }
 }

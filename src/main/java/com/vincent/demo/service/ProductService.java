@@ -42,14 +42,12 @@ public class ProductService {
 
     public ProductResponse replaceProduct(String id, ProductRequest request) {
         Product oldProduct = getProduct(id);
+        Product newProduct = ProductConverter.toProduct(request);
+        newProduct.setId(oldProduct.getId());
 
-        Product product = new Product();
-        product.setId(oldProduct.getId());
-        product.setName(request.getName());
-        product.setPrice(request.getPrice());
-        product = repository.save(product);
+        repository.save(newProduct);
 
-        return ProductConverter.toProductResponse(product);
+        return ProductConverter.toProductResponse(newProduct);
     }
 
     public void deleteProduct(String id) {
