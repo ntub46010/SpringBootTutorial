@@ -1,7 +1,7 @@
 package com.vincent.demo.controller;
 
-import com.vincent.demo.entity.Product;
 import com.vincent.demo.entity.ProductRequest;
+import com.vincent.demo.entity.ProductResponse;
 import com.vincent.demo.parameter.QueryParameter;
 import com.vincent.demo.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,14 +21,14 @@ public class ProductController {
     private ProductService productService;
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<Product> getProduct(@PathVariable("id") String id) {
-        Product product = productService.getProduct(id);
+    public ResponseEntity<ProductResponse> getProduct(@PathVariable("id") String id) {
+        ProductResponse product = productService.getProductResponse(id);
         return ResponseEntity.ok(product);
     }
 
     @PostMapping
-    public ResponseEntity<Product> createProduct(@Valid @RequestBody ProductRequest request) {
-        Product product = productService.createProduct(request);
+    public ResponseEntity<ProductResponse> createProduct(@Valid @RequestBody ProductRequest request) {
+        ProductResponse product = productService.createProduct(request);
 
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -40,9 +40,9 @@ public class ProductController {
     }
 
     @PutMapping(value = "/{id}")
-    public ResponseEntity<Product> replaceProduct(
+    public ResponseEntity<ProductResponse> replaceProduct(
             @PathVariable("id") String id, @Valid @RequestBody ProductRequest request) {
-        Product product = productService.replaceProduct(id, request);
+        ProductResponse product = productService.replaceProduct(id, request);
         return ResponseEntity.ok(product);
     }
 
@@ -53,8 +53,8 @@ public class ProductController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Product>> getProducts(@ModelAttribute QueryParameter param) {
-        List<Product> products = productService.getProducts(param);
+    public ResponseEntity<List<ProductResponse>> getProducts(@ModelAttribute QueryParameter param) {
+        List<ProductResponse> products = productService.getProductResponses(param);
         return ResponseEntity.ok(products);
     }
 

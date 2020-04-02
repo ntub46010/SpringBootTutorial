@@ -1,7 +1,9 @@
 package com.vincent.demo.service;
 
+import com.vincent.demo.converter.ProductConverter;
 import com.vincent.demo.entity.Product;
 import com.vincent.demo.entity.ProductRequest;
+import com.vincent.demo.entity.ProductResponse;
 import com.vincent.demo.exception.NotFoundException;
 import com.vincent.demo.parameter.QueryParameter;
 import com.vincent.demo.repository.ProductRepository;
@@ -10,6 +12,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductService {
@@ -22,30 +25,38 @@ public class ProductService {
                 .orElseThrow(() -> new NotFoundException("Can't find product."));
     }
 
-    public Product createProduct(ProductRequest request) {
+    public ProductResponse getProductResponse(String id) {
+        Product product = repository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Can't find product."));
+        return ProductConverter.toProductResponse(product);
+    }
+
+    public ProductResponse createProduct(ProductRequest request) {
         Product product = new Product();
         product.setName(request.getName());
         product.setPrice(request.getPrice());
+        product = repository.insert(product);
 
-        return repository.insert(product);
+        return ProductConverter.toProductResponse(product);
     }
 
-    public Product replaceProduct(String id, ProductRequest request) {
+    public ProductResponse replaceProduct(String id, ProductRequest request) {
         Product oldProduct = getProduct(id);
 
         Product product = new Product();
         product.setId(oldProduct.getId());
         product.setName(request.getName());
         product.setPrice(request.getPrice());
+        product = repository.save(product);
 
-        return repository.save(product);
+        return ProductConverter.toProductResponse(product);
     }
 
     public void deleteProduct(String id) {
         repository.deleteById(id);
     }
 
-    public List<Product> getProducts(QueryParameter param) {
+    public List<ProductResponse> getProductResponses(QueryParameter param) {
         String orderBy = param.getOrderBy();
         String sortRule = param.getSortRule();
         String keyword = param.getKeyword();
@@ -63,11 +74,16 @@ public class ProductService {
             keyword = "";
         }
 
+        List<Product> products;
         if (sort != null) {
-            return repository.findByNameLike(keyword, sort);
+            products = repository.findByNameLike(keyword, sort);
+        } else {
+            products = repository.findByNameLike(keyword);
         }
 
-        return repository.findByNameLike(keyword);
+        return products.stream()
+                .map(ProductConverter::toProductResponse)
+                .collect(Collectors.toList());
     }
 
 }
