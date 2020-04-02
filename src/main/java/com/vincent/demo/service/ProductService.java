@@ -1,5 +1,6 @@
 package com.vincent.demo.service;
 
+import com.vincent.demo.converter.ProductConverter;
 import com.vincent.demo.entity.Product;
 import com.vincent.demo.entity.ProductRequest;
 import com.vincent.demo.exception.NotFoundException;
@@ -23,22 +24,16 @@ public class ProductService {
     }
 
     public Product createProduct(ProductRequest request) {
-        Product product = new Product();
-        product.setName(request.getName());
-        product.setPrice(request.getPrice());
-
+        Product product = ProductConverter.toProduct(request);
         return repository.insert(product);
     }
 
     public Product replaceProduct(String id, ProductRequest request) {
         Product oldProduct = getProduct(id);
+        Product newProduct = ProductConverter.toProduct(request);
+        newProduct.setId(oldProduct.getId());
 
-        Product product = new Product();
-        product.setId(oldProduct.getId());
-        product.setName(request.getName());
-        product.setPrice(request.getPrice());
-
-        return repository.save(product);
+        return repository.save(newProduct);
     }
 
     public void deleteProduct(String id) {

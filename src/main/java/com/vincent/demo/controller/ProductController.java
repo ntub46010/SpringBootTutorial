@@ -40,8 +40,8 @@ public class ProductController {
     }
 
     @PutMapping(value = "/{id}")
-    public ResponseEntity<Product> replaceProduct(
-            @PathVariable("id") String id, @Valid @RequestBody ProductRequest request) {
+    public ResponseEntity<Product> replaceProduct(@PathVariable("id") String id,
+                                                  @Valid @RequestBody ProductRequest request) {
         Product product = productService.replaceProduct(id, request);
         return ResponseEntity.ok(product);
     }
