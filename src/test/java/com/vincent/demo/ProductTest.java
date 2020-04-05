@@ -25,15 +25,16 @@ public class ProductTest {
 
     @Test
     public void testCreateProduct() throws Exception {
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.add("Content-Type", "application/json");
+
         JSONObject request = new JSONObject();
         request.put("name", "Harry Potter");
         request.put("price", 450);
 
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.add("Content-Type", "application/json");
-
         RequestBuilder requestBuilder =
-                MockMvcRequestBuilders.post("/products")
+                MockMvcRequestBuilders
+                        .post("/products")
                         .headers(httpHeaders)
                         .content(request.toString());
 
