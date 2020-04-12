@@ -2,13 +2,15 @@ package com.vincent.demo.service;
 
 import com.vincent.demo.entity.Product;
 import com.vincent.demo.exception.NotFoundException;
-import com.vincent.demo.parameter.QueryParameter;
+import com.vincent.demo.parameter.ProductQueryParameter;
 import com.vincent.demo.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 @Service
 public class ProductService {
@@ -44,29 +46,20 @@ public class ProductService {
         repository.deleteById(id);
     }
 
-    public List<Product> getProducts(QueryParameter param) {
+    public List<Product> getProducts(ProductQueryParameter param) {
+        String nameKeyword = Optional.ofNullable(param.getKeyword()).orElse("");
+        int priceFrom = Optional.ofNullable(param.getPriceFrom()).orElse(0);
+        int priceTo = Optional.ofNullable(param.getPriceTo()).orElse(Integer.MAX_VALUE);
         String orderBy = param.getOrderBy();
         String sortRule = param.getSortRule();
-        String keyword = param.getKeyword();
 
-        Sort sort = null;
-        if (orderBy != null && sortRule != null) {
-            Sort.Direction direction = sortRule.equals("asc")
-                    ? Sort.Direction.ASC
-                    : Sort.Direction.DESC;
-
+        Sort sort = Sort.unsorted();
+        if (Objects.nonNull(orderBy) && Objects.nonNull(sortRule)) {
+            Sort.Direction direction = Sort.Direction.fromString(sortRule);
             sort = new Sort(direction, orderBy);
         }
 
-        if (keyword == null) {
-            keyword = "";
-        }
-
-        if (sort != null) {
-            return repository.findByNameLike(keyword, sort);
-        }
-
-        return repository.findByNameLike(keyword);
+        return repository.findByPriceBetweenAndNameLikeIgnoreCase(priceFrom, priceTo, nameKeyword, sort);
     }
 
 }

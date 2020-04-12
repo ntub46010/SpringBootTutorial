@@ -1,7 +1,7 @@
 package com.vincent.demo.controller;
 
 import com.vincent.demo.entity.Product;
-import com.vincent.demo.parameter.QueryParameter;
+import com.vincent.demo.parameter.ProductQueryParameter;
 import com.vincent.demo.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -51,7 +51,7 @@ public class ProductController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Product>> getProducts(@ModelAttribute QueryParameter param) {
+    public ResponseEntity<List<Product>> getProducts(@ModelAttribute ProductQueryParameter param) {
         List<Product> products = productService.getProducts(param);
         return ResponseEntity.ok(products);
     }
