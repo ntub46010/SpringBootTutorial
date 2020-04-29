@@ -1,6 +1,6 @@
 package com.vincent.demo.parameter;
 
-public class QueryParameter {
+public class ProductQueryParameter {
     private String keyword;
     private String orderBy;
     private String sortRule;

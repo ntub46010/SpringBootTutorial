@@ -3,19 +3,15 @@ package com.vincent.demo.controller;
 import com.vincent.demo.entity.Product;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import com.vincent.demo.parameter.QueryParameter;
+import com.vincent.demo.parameter.ProductQueryParameter;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.annotation.PostConstruct;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @RestController
 @RequestMapping(value = "/products", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -32,7 +28,7 @@ public class ProductController {
         productDB.add(new Product("B0005", "Human Resource Management", 330));
     }
 
-    @GetMapping("/products/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<Product> getProduct(@PathVariable("id") String id) {
         Optional<Product> productOp = productDB.stream()
                 .filter(p -> p.getId().equals(id))
@@ -45,7 +41,26 @@ public class ProductController {
         Product product = productOp.get();
         return ResponseEntity.ok().body(product);
     }
-    @PostMapping("/products")
+
+    @GetMapping
+    public ResponseEntity<List<Product>> getProducts(@ModelAttribute ProductQueryParameter param) {
+        String nameKeyword = param.getKeyword();
+        String orderBy = param.getOrderBy();
+        String sortRule = param.getSortRule();
+
+        Comparator<Product> comparator = Objects.nonNull(orderBy) && Objects.nonNull(sortRule)
+                ? configureSortComparator(orderBy, sortRule)
+                : (p1, p2) -> 0;
+
+        List<Product> products = productDB.stream()
+                .filter(p -> p.getName().toUpperCase().contains(nameKeyword.toUpperCase()))
+                .sorted(comparator)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok().body(products);
+    }
+
+    @PostMapping
     public ResponseEntity<Product> createProduct(@RequestBody Product request) {
         boolean isIdDuplicated = productDB.stream()
                 .anyMatch(p -> p.getId().equals(request.getId()));
@@ -68,7 +83,7 @@ public class ProductController {
         return ResponseEntity.created(location).body(product);
     }
 
-    @PutMapping(value = "/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<Product> replaceProduct(
             @PathVariable("id") String id, @RequestBody Product request) {
         Optional<Product> productOp = productDB.stream()
@@ -79,51 +94,37 @@ public class ProductController {
             return ResponseEntity.notFound().build();
         }
 
-        Product oldProduct = productOp.get();
-        int productIndex = productDB.indexOf(oldProduct);
-
-        Product product = new Product();
-        product.setId(oldProduct.getId());
+        Product product = productOp.get();
         product.setName(request.getName());
         product.setPrice(request.getPrice());
-        productDB.set(productIndex, product);
 
         return ResponseEntity.ok().body(product);
     }
 
-    @DeleteMapping(value = "/{id}")
-    public ResponseEntity deleteProduct(@PathVariable("id") String id) {
-        Optional<Product> productOp = productDB.stream()
-                .filter(p -> p.getId().equals(id))
-                .findFirst();
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteProduct(@PathVariable("id") String id) {
+        boolean isRemoved = productDB.removeIf(p -> p.getId().equals(id));
 
-        if (productOp.isPresent()) {
-            Product product = productOp.get();
-            productDB.remove(product);
+        if (isRemoved) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.notFound().build();
         }
-
-        return ResponseEntity.noContent().build();
     }
 
-    @GetMapping
-    public ResponseEntity<List<Product>> getProducts(@ModelAttribute QueryParameter param) {
-        Stream<Product> stream = productDB.stream();
+    private Comparator<Product> configureSortComparator(String orderBy, String sortRule) {
+        Comparator<Product> comparator = (p1, p2) -> 0;
 
-        if (param.getKeyword() != null) {
-            stream = stream
-                    .filter(p -> p.getName().contains(param.getKeyword()));
+        if (orderBy.equalsIgnoreCase("price")) {
+            comparator = Comparator.comparing(Product::getPrice);
+        } else if (orderBy.equalsIgnoreCase("name")) {
+            comparator = Comparator.comparing(Product::getName);
         }
 
-        if ("price".equals(param.getOrderBy()) && param.getSortRule() != null) {
-            Comparator<Product> comparator = param.getSortRule().equals("asc")
-                    ? Comparator.comparing(Product::getPrice)
-                    : Comparator.comparing(Product::getPrice).reversed();
-
-            stream = stream.sorted(comparator);
+        if (sortRule.equalsIgnoreCase("desc")) {
+            comparator = comparator.reversed();
         }
 
-        List<Product> products = stream.collect(Collectors.toList());
-
-        return ResponseEntity.ok(products);
+        return comparator;
     }
 }
