@@ -4,14 +4,23 @@ import com.vincent.demo.entity.Product;
 import com.vincent.demo.parameter.ProductQueryParameter;
 import org.springframework.stereotype.Repository;
 
+import javax.annotation.PostConstruct;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Repository
 public class MockProductDAO {
 
     private final List<Product> productDB = new ArrayList<>();
+
+    @PostConstruct
+    private void initDB() {
+        productDB.add(new Product("B0001", "Android Development (Java)", 380));
+        productDB.add(new Product("B0002", "Android Development (Kotlin)", 420));
+        productDB.add(new Product("B0003", "Data Structure (Java)", 250));
+        productDB.add(new Product("B0004", "Finance Management", 450));
+        productDB.add(new Product("B0005", "Human Resource Management", 330));
+    }
 
     public Product insert(Product product) {
         productDB.add(product);

@@ -36,19 +36,17 @@ public class ProductService {
     }
 
     public Product replaceProduct(String id, Product request) {
-        boolean isPresent = productDAO.find(request.getId()).isPresent();
-        if (!isPresent) {
-            throw new NotFoundException("Can't find product.");
-        }
-
-        return productDAO.replace(id, request);
+        Product product = getProduct(id);
+        return productDAO.replace(product.getId(), request);
     }
 
     public void deleteProduct(String id) {
-        productDAO.delete(id);
+        Product product = getProduct(id);
+        productDAO.delete(product.getId());
     }
 
     public List<Product> getProducts(ProductQueryParameter param) {
         return productDAO.find(param);
     }
+
 }
