@@ -2,8 +2,10 @@ package com.vincent.demo;
 
 import com.vincent.demo.entity.Product;
 import com.vincent.demo.repository.ProductRepository;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,14 +18,18 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.RequestBuilder;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
-import static org.hamcrest.Matchers.hasSize;
-import static org.junit.Assert.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -55,27 +61,20 @@ public class ProductTest {
         request.put("name", "Harry Potter");
         request.put("price", 450);
 
-        MvcResult result = mockMvc.perform(post("/products")
-                .headers(httpHeaders)
-                .content(request.toString()))
+        RequestBuilder requestBuilder =
+                MockMvcRequestBuilders
+                        .post("/products")
+                        .headers(httpHeaders)
+                        .content(request.toString());
+
+        mockMvc.perform(requestBuilder)
                 .andDo(print())
-                .andReturn();
-
-        MockHttpServletResponse response = result.getResponse();
-        JSONObject resBody = new JSONObject(response.getContentAsString());
-        String productId = resBody.getString("id");
-
-        assertNotNull(productId);
-        assertEquals(request.getString("name"), resBody.getString("name"));
-        assertEquals(request.getString("price"), resBody.getString("price"));
-
-        assertEquals(HttpStatus.CREATED.value(), response.getStatus());
-        assertEquals("application/json;charset=UTF-8", response.getContentType());
-        assertEquals(result.getRequest().getRequestURL() + "/" + productId,
-                response.getHeader("Location"));
-
-        assertEquals(1, productRepository.findAll().size());
-        assertTrue(productRepository.findById(productId).isPresent());
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").hasJsonPath())
+                .andExpect(jsonPath("$.name").value(request.getString("name")))
+                .andExpect(jsonPath("$.price").value(request.getInt("price")))
+                .andExpect(header().exists("Location"))
+                .andExpect(header().string("Content-Type", "application/json;charset=UTF-8"));
     }
 
     @Test
@@ -131,17 +130,31 @@ public class ProductTest {
         Product p5 = createProduct("Enterprise Resource Planning", 440);
         productRepository.insert(Arrays.asList(p1, p2, p3, p4, p5));
 
-        mockMvc.perform(get("/products")
+        MvcResult result = mockMvc.perform(get("/products")
+                .headers(httpHeaders)
                 .param("keyword", "Manage")
                 .param("orderBy", "price")
-                .param("sortRule", "asc")
-                .headers(httpHeaders))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(4)))
-                .andExpect(jsonPath("$[0].id").value(p2.getId()))
-                .andExpect(jsonPath("$[1].id").value(p1.getId()))
-                .andExpect(jsonPath("$[2].id").value(p4.getId()))
-                .andExpect(jsonPath("$[3].id").value(p3.getId()));
+                .param("sortRule", "asc"))
+                .andReturn();
+
+        MockHttpServletResponse mockHttpResponse = result.getResponse();
+        String responseJSONStr = mockHttpResponse.getContentAsString();
+        JSONArray productJSONArray = new JSONArray(responseJSONStr);
+
+        List<String> productIds = new ArrayList<>();
+        for (int i = 0; i < productJSONArray.length(); i++) {
+            JSONObject productJSON = productJSONArray.getJSONObject(i);
+            productIds.add(productJSON.getString("id"));
+        }
+
+        Assert.assertEquals(4, productIds.size());
+        Assert.assertEquals(p2.getId(), productIds.get(0));
+        Assert.assertEquals(p1.getId(), productIds.get(1));
+        Assert.assertEquals(p4.getId(), productIds.get(2));
+        Assert.assertEquals(p3.getId(), productIds.get(3));
+
+        Assert.assertEquals(HttpStatus.OK.value(), mockHttpResponse.getStatus());
+        Assert.assertEquals("application/json;charset=UTF-8", mockHttpResponse.getContentType());
     }
 
     @Test
