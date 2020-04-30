@@ -50,16 +50,20 @@ public class ProductService {
         String nameKeyword = Optional.ofNullable(param.getKeyword()).orElse("");
         int priceFrom = Optional.ofNullable(param.getPriceFrom()).orElse(0);
         int priceTo = Optional.ofNullable(param.getPriceTo()).orElse(Integer.MAX_VALUE);
-        String orderBy = param.getOrderBy();
-        String sortRule = param.getSortRule();
 
+        Sort sort = configureSort(param.getOrderBy(), param.getSortRule());
+
+        return repository.findByPriceBetweenAndNameLikeIgnoreCase(priceFrom, priceTo, nameKeyword, sort);
+    }
+
+    private Sort configureSort(String orderBy, String sortRule) {
         Sort sort = Sort.unsorted();
         if (Objects.nonNull(orderBy) && Objects.nonNull(sortRule)) {
             Sort.Direction direction = Sort.Direction.fromString(sortRule);
             sort = new Sort(direction, orderBy);
         }
 
-        return repository.findByPriceBetweenAndNameLikeIgnoreCase(priceFrom, priceTo, nameKeyword, sort);
+        return sort;
     }
 
 }
