@@ -1,7 +1,9 @@
 package com.vincent.demo.parameter;
 
-public class QueryParameter {
+public class ProductQueryParameter {
     private String keyword;
+    private Integer priceFrom;
+    private Integer priceTo;
     private String orderBy;
     private String sortRule;
 
@@ -11,6 +13,22 @@ public class QueryParameter {
 
     public void setKeyword(String keyword) {
         this.keyword = keyword;
+    }
+
+    public Integer getPriceFrom() {
+        return priceFrom;
+    }
+
+    public void setPriceFrom(Integer priceFrom) {
+        this.priceFrom = priceFrom;
+    }
+
+    public Integer getPriceTo() {
+        return priceTo;
+    }
+
+    public void setPriceTo(Integer priceTo) {
+        this.priceTo = priceTo;
     }
 
     public String getOrderBy() {
