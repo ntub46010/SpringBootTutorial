@@ -18,6 +18,8 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.RequestBuilder;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -59,12 +61,13 @@ public class ProductTest {
         request.put("name", "Harry Potter");
         request.put("price", 450);
 
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.add("Content-Type", "application/json");
+        RequestBuilder requestBuilder =
+                MockMvcRequestBuilders
+                        .post("/products")
+                        .headers(httpHeaders)
+                        .content(request.toString());
 
-        mockMvc.perform(post("/products")
-                .headers(httpHeaders)
-                .content(request.toString()))
+        mockMvc.perform(requestBuilder)
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").hasJsonPath())
