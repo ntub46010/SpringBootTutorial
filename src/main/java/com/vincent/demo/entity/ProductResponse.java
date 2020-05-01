@@ -1,13 +1,9 @@
 package com.vincent.demo.entity;
 
-import com.fasterxml.jackson.annotation.*;
-
-public class Book {
+public class ProductResponse {
     private String id;
     private String name;
     private int price;
-    private String isbn;
-    private Publisher publisher;
 
     public String getId() {
         return id;
@@ -32,21 +28,4 @@ public class Book {
     public void setPrice(int price) {
         this.price = price;
     }
-
-    public String getIsbn() {
-        return isbn;
-    }
-
-    public void setIsbn(String isbn) {
-        this.isbn = isbn;
-    }
-
-    public Publisher getPublisher() {
-        return publisher;
-    }
-
-    public void setPublisher(Publisher publisher) {
-        this.publisher = publisher;
-    }
-
 }
