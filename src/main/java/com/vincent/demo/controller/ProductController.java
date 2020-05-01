@@ -1,8 +1,9 @@
 package com.vincent.demo.controller;
 
-import com.vincent.demo.entity.Product;
 import com.vincent.demo.entity.ProductRequest;
-import com.vincent.demo.parameter.QueryParameter;
+import com.vincent.demo.parameter.ProductQueryParameter;
+import org.springframework.http.MediaType;
+import com.vincent.demo.entity.ProductResponse;
 import com.vincent.demo.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -14,21 +15,27 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "/products")
+@RequestMapping(value = "/products", produces = MediaType.APPLICATION_JSON_VALUE)
 public class ProductController {
 
     @Autowired
     private ProductService productService;
 
-    @GetMapping(value = "/{id}")
-    public ResponseEntity<Product> getProduct(@PathVariable("id") String id) {
-        Product product = productService.getProduct(id);
+    @GetMapping("/{id}")
+    public ResponseEntity<ProductResponse> getProduct(@PathVariable("id") String id) {
+        ProductResponse product = productService.getProductResponse(id);
         return ResponseEntity.ok(product);
     }
 
+    @GetMapping
+    public ResponseEntity<List<ProductResponse>> getProducts(@ModelAttribute ProductQueryParameter param) {
+        List<ProductResponse> products = productService.getProductResponses(param);
+        return ResponseEntity.ok(products);
+    }
+
     @PostMapping
-    public ResponseEntity<Product> createProduct(@Valid @RequestBody ProductRequest request) {
-        Product product = productService.createProduct(request);
+    public ResponseEntity<ProductResponse> createProduct(@Valid @RequestBody ProductRequest request) {
+        ProductResponse product = productService.createProduct(request);
 
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -39,23 +46,17 @@ public class ProductController {
         return ResponseEntity.created(location).body(product);
     }
 
-    @PutMapping(value = "/{id}")
-    public ResponseEntity<Product> replaceProduct(
-            @PathVariable("id") String id, @Valid @RequestBody ProductRequest request) {
-        Product product = productService.replaceProduct(id, request);
+    @PutMapping("/{id}")
+    public ResponseEntity<ProductResponse> replaceProduct(@PathVariable("id") String id,
+                                                          @Valid @RequestBody ProductRequest request) {
+        ProductResponse product = productService.replaceProduct(id, request);
         return ResponseEntity.ok(product);
     }
 
-    @DeleteMapping(value = "/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity deleteProduct(@PathVariable("id") String id) {
         productService.deleteProduct(id);
         return ResponseEntity.noContent().build();
-    }
-
-    @GetMapping
-    public ResponseEntity<List<Product>> getProducts(@ModelAttribute QueryParameter param) {
-        List<Product> products = productService.getProducts(param);
-        return ResponseEntity.ok(products);
     }
 
 }
