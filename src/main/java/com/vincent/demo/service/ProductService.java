@@ -17,9 +17,11 @@ import java.util.Optional;
 public class ProductService {
 
     private ProductRepository repository;
+    private MailService mailService;
 
-    public ProductService(ProductRepository repository) {
+    public ProductService(ProductRepository repository, MailService mailService) {
         this.repository = repository;
+        this.mailService = mailService;
     }
 
     public Product getProduct(String id) {
@@ -39,6 +41,8 @@ public class ProductService {
         product.setPrice(request.getPrice());
         product = repository.insert(product);
 
+        mailService.sendNewProductMail(product.getId());
+
         return ProductConverter.toProductResponse(product);
     }
 
@@ -54,6 +58,7 @@ public class ProductService {
 
     public void deleteProduct(String id) {
         repository.deleteById(id);
+        mailService.sendDeleteProductMail(id);
     }
 
     public List<ProductResponse> getProductResponses(ProductQueryParameter param) {

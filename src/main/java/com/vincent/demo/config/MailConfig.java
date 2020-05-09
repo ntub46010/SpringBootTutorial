@@ -34,6 +34,7 @@ public class MailConfig {
 
     @Bean
     public MailService mailService() throws Exception {
+        System.out.println("Create mail service.");
         return "yahoo".equals(platform)
                 ? yahooMailService()
                 : gmailService();
