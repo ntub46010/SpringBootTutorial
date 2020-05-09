@@ -1,10 +1,12 @@
 package com.vincent.demo.config;
 
 import com.vincent.demo.service.MailService;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.Scope;
 
 import javax.mail.Authenticator;
 import javax.mail.PasswordAuthentication;
@@ -33,6 +35,7 @@ public class MailConfig {
     private String platform;
 
     @Bean
+    @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
     public MailService mailService() throws Exception {
         System.out.println("Create mail service.");
         return "yahoo".equals(platform)
