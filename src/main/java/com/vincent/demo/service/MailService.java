@@ -15,16 +15,12 @@ public class MailService {
     private final Properties props;
     private final InternetAddress fromAddress;
     private final Authenticator authenticator;
-    private final List<String> mailMessages;
-    private final long tag;
 
     public MailService(Properties props, InternetAddress fromAddress,
                        Authenticator authenticator) {
         this.props = props;
         this.fromAddress = fromAddress;
         this.authenticator = authenticator;
-        this.tag = System.currentTimeMillis();
-        this.mailMessages = new ArrayList<>();
     }
 
     public void sendMail(SendMailRequest request) {
@@ -48,9 +44,6 @@ public class MailService {
                         new InternetAddress(address));
             }
             Transport.send(message);
-
-            mailMessages.add(content);
-            printMessages();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -64,17 +57,6 @@ public class MailService {
     public void sendDeleteProductMail(String productId) {
         String message = String.format("There's a product deleted (%s).", productId);
         sendMail("Product Deleted", message, "google_account@gmail.com");
-    }
-
-    private void printMessages() {
-        System.out.println("----------");
-        mailMessages.forEach(System.out::println);
-    }
-
-    @PreDestroy
-    public void preDestroy() {
-        System.out.println("##########");
-        System.out.printf("Spring Boot is about to destroy Mail Service %d.\n\n", tag);
     }
 
 }
