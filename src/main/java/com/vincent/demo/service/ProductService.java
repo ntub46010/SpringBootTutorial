@@ -36,9 +36,7 @@ public class ProductService {
     }
 
     public ProductResponse createProduct(ProductRequest request) {
-        Product product = new Product();
-        product.setName(request.getName());
-        product.setPrice(request.getPrice());
+        Product product = ProductConverter.toProduct(request);
         product = repository.insert(product);
 
         mailService.sendNewProductMail(product.getId());

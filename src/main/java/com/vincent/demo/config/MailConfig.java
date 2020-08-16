@@ -37,7 +37,6 @@ public class MailConfig {
     @Bean
     @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
     public MailService mailService() throws Exception {
-        System.out.println("Create mail service.");
         return "yahoo".equals(platform)
                 ? yahooMailService()
                 : gmailService();
