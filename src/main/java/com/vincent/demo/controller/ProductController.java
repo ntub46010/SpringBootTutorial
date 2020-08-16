@@ -1,9 +1,9 @@
 package com.vincent.demo.controller;
 
-import com.vincent.demo.entity.ProductRequest;
+import com.vincent.demo.entity.product.ProductRequest;
 import com.vincent.demo.parameter.ProductQueryParameter;
 import org.springframework.http.MediaType;
-import com.vincent.demo.entity.ProductResponse;
+import com.vincent.demo.entity.product.ProductResponse;
 import com.vincent.demo.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

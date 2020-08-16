@@ -1,4 +1,4 @@
-package com.vincent.demo.entity;
+package com.vincent.demo.entity.product;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;

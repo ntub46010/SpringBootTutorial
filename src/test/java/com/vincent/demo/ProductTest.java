@@ -1,6 +1,6 @@
 package com.vincent.demo;
 
-import com.vincent.demo.entity.Product;
+import com.vincent.demo.entity.product.Product;
 import com.vincent.demo.repository.ProductRepository;
 import org.json.JSONArray;
 import org.json.JSONObject;

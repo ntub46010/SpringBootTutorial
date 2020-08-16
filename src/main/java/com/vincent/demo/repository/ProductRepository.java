@@ -1,6 +1,6 @@
 package com.vincent.demo.repository;
 
-import com.vincent.demo.entity.Product;
+import com.vincent.demo.entity.product.Product;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;

@@ -1,4 +1,4 @@
-package com.vincent.demo.entity;
+package com.vincent.demo.entity.mail;
 
 import javax.validation.constraints.NotEmpty;
 import java.util.List;

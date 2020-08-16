@@ -1,9 +1,9 @@
 package com.vincent.demo.service;
 
 import com.vincent.demo.converter.ProductConverter;
-import com.vincent.demo.entity.Product;
-import com.vincent.demo.entity.ProductRequest;
-import com.vincent.demo.entity.ProductResponse;
+import com.vincent.demo.entity.product.Product;
+import com.vincent.demo.entity.product.ProductRequest;
+import com.vincent.demo.entity.product.ProductResponse;
 import com.vincent.demo.exception.NotFoundException;
 import com.vincent.demo.parameter.ProductQueryParameter;
 import com.vincent.demo.repository.ProductRepository;

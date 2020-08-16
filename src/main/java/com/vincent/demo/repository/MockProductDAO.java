@@ -1,6 +1,6 @@
 package com.vincent.demo.repository;
 
-import com.vincent.demo.entity.Product;
+import com.vincent.demo.entity.product.Product;
 import com.vincent.demo.parameter.ProductQueryParameter;
 import org.springframework.stereotype.Repository;
 

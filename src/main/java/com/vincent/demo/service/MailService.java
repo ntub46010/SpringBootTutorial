@@ -1,12 +1,10 @@
 package com.vincent.demo.service;
 
-import com.vincent.demo.entity.SendMailRequest;
+import com.vincent.demo.entity.mail.SendMailRequest;
 
-import javax.annotation.PreDestroy;
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
