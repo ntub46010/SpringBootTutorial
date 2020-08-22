@@ -1,22 +1,14 @@
 package com.vincent.demo;
 
 import com.vincent.demo.entity.product.Product;
-import com.vincent.demo.repository.ProductRepository;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -32,28 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest
-@AutoConfigureMockMvc
-public class ProductTest {
-
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private ProductRepository productRepository;
-
-    private HttpHeaders httpHeaders;
-
-    @Before
-    public void init() {
-        httpHeaders = new HttpHeaders();
-        httpHeaders.add("Content-Type", "application/json");
-    }
-
-    @After
-    public void clear() {
-        productRepository.deleteAll();
-    }
+public class ProductTest extends BaseTest {
 
     @Test
     public void testCreateProduct() throws Exception {

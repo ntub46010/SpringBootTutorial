@@ -1,5 +1,6 @@
 package com.vincent.demo.config;
 
+import com.vincent.demo.auth.UserIdentity;
 import com.vincent.demo.service.MailService;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -36,13 +37,13 @@ public class MailConfig {
 
     @Bean
     @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
-    public MailService mailService() throws Exception {
+    public MailService mailService(UserIdentity userIdentity) throws Exception {
         return "yahoo".equals(platform)
-                ? yahooMailService()
-                : gmailService();
+                ? yahooMailService(userIdentity)
+                : gmailService(userIdentity);
     }
 
-    private MailService gmailService() throws Exception {
+    private MailService gmailService(UserIdentity userIdentity) throws Exception {
         Properties props = new Properties();
         props.put("mail.smtp.host", gmailHost);
         props.put("mail.smtp.port", gmailPort);
@@ -62,10 +63,10 @@ public class MailConfig {
             }
         };
 
-        return new MailService(props, fromAddress, authenticator);
+        return new MailService(props, fromAddress, authenticator, userIdentity);
     }
 
-    private MailService yahooMailService() throws Exception {
+    private MailService yahooMailService(UserIdentity userIdentity) throws Exception {
         Properties props = new Properties();
         props.put("mail.smtp.host", yahooHost);
         props.put("mail.smtp.port", yahooPort);
@@ -85,7 +86,7 @@ public class MailConfig {
             }
         };
 
-        return new MailService(props, fromAddress, authenticator);
+        return new MailService(props, fromAddress, authenticator, userIdentity);
     }
 
     public void setPlatform(String platform) {

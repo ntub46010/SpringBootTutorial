@@ -1,5 +1,6 @@
 package com.vincent.demo.service;
 
+import com.vincent.demo.auth.UserIdentity;
 import com.vincent.demo.converter.ProductConverter;
 import com.vincent.demo.entity.product.Product;
 import com.vincent.demo.entity.product.ProductRequest;
@@ -18,10 +19,13 @@ public class ProductService {
 
     private ProductRepository repository;
     private MailService mailService;
+    private UserIdentity userIdentity;
 
-    public ProductService(ProductRepository repository, MailService mailService) {
+    public ProductService(ProductRepository repository, MailService mailService,
+                          UserIdentity userIdentity) {
         this.repository = repository;
         this.mailService = mailService;
+        this.userIdentity = userIdentity;
     }
 
     public Product getProduct(String id) {
@@ -37,6 +41,7 @@ public class ProductService {
 
     public ProductResponse createProduct(ProductRequest request) {
         Product product = ProductConverter.toProduct(request);
+        product.setCreator(userIdentity.getId());
         product = repository.insert(product);
 
         mailService.sendNewProductMail(product.getId());
@@ -48,6 +53,7 @@ public class ProductService {
         Product oldProduct = getProduct(id);
         Product newProduct = ProductConverter.toProduct(request);
         newProduct.setId(oldProduct.getId());
+        newProduct.setCreator(oldProduct.getCreator());
 
         repository.save(newProduct);
 

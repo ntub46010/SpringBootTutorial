@@ -7,6 +7,7 @@ public class Product {
     private String id;
     private String name;
     private int price;
+    private String creator;
 
     public Product() {
 
@@ -40,5 +41,13 @@ public class Product {
 
     public void setPrice(int price) {
         this.price = price;
+    }
+
+    public String getCreator() {
+        return creator;
+    }
+
+    public void setCreator(String creator) {
+        this.creator = creator;
     }
 }
