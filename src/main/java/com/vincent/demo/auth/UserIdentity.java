@@ -12,11 +12,14 @@ public class UserIdentity {
 
     private SpringUser getSpringUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null) {
-            return EMPTY_USER;
-        }
+        Object principal = authentication.getPrincipal();
+        return principal.equals("anonymousUser")
+                ? EMPTY_USER
+                : (SpringUser) principal;
+    }
 
-        return (SpringUser) authentication.getPrincipal();
+    public boolean isAnonymous() {
+        return !EMPTY_USER.equals(getSpringUser());
     }
 
     public String getId() {
