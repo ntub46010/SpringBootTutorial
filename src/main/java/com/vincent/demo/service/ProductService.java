@@ -1,5 +1,8 @@
 package com.vincent.demo.service;
 
+import com.vincent.demo.aop.ActionType;
+import com.vincent.demo.aop.EntityType;
+import com.vincent.demo.aop.SendEmail;
 import com.vincent.demo.auth.UserIdentity;
 import com.vincent.demo.converter.ProductConverter;
 import com.vincent.demo.entity.product.Product;
@@ -18,13 +21,10 @@ import java.util.Optional;
 public class ProductService {
 
     private ProductRepository repository;
-    private MailService mailService;
     private UserIdentity userIdentity;
 
-    public ProductService(ProductRepository repository, MailService mailService,
-                          UserIdentity userIdentity) {
+    public ProductService(ProductRepository repository, UserIdentity userIdentity) {
         this.repository = repository;
-        this.mailService = mailService;
         this.userIdentity = userIdentity;
     }
 
@@ -39,16 +39,16 @@ public class ProductService {
         return ProductConverter.toProductResponse(product);
     }
 
+    @SendEmail(entity = EntityType.PRODUCT, action = ActionType.CREATE)
     public ProductResponse createProduct(ProductRequest request) {
         Product product = ProductConverter.toProduct(request);
         product.setCreator(userIdentity.getId());
         product = repository.insert(product);
 
-        mailService.sendNewProductMail(product.getId());
-
         return ProductConverter.toProductResponse(product);
     }
 
+    @SendEmail(entity = EntityType.PRODUCT, action = ActionType.UPDATE, idParamIndex = 0)
     public ProductResponse replaceProduct(String id, ProductRequest request) {
         Product oldProduct = getProduct(id);
         Product newProduct = ProductConverter.toProduct(request);
@@ -60,9 +60,9 @@ public class ProductService {
         return ProductConverter.toProductResponse(newProduct);
     }
 
+    @SendEmail(entity = EntityType.PRODUCT, action = ActionType.DELETE, idParamIndex = 0)
     public void deleteProduct(String id) {
         repository.deleteById(id);
-        mailService.sendDeleteProductMail(id);
     }
 
     public List<ProductResponse> getProductResponses(ProductQueryParameter param) {

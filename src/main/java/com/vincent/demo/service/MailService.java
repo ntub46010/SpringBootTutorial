@@ -1,6 +1,5 @@
 package com.vincent.demo.service;
 
-import com.vincent.demo.auth.UserIdentity;
 import com.vincent.demo.entity.mail.SendMailRequest;
 
 import javax.mail.*;
@@ -14,14 +13,12 @@ public class MailService {
     private final Properties props;
     private final InternetAddress fromAddress;
     private final Authenticator authenticator;
-    private UserIdentity userIdentity;
 
     public MailService(Properties props, InternetAddress fromAddress,
-                       Authenticator authenticator, UserIdentity userIdentity) {
+                       Authenticator authenticator) {
         this.props = props;
         this.fromAddress = fromAddress;
         this.authenticator = authenticator;
-        this.userIdentity = userIdentity;
     }
 
     public void sendMail(SendMailRequest request) {
@@ -49,17 +46,4 @@ public class MailService {
             e.printStackTrace();
         }
     }
-
-    public void sendNewProductMail(String productId) {
-        String message = String.format("Hi, %s. There's a new created product (%s).",
-                userIdentity.getName(), productId);
-        sendMail("New Product", message, userIdentity.getEmail());
-    }
-
-    public void sendDeleteProductMail(String productId) {
-        String message = String.format("Hi, %s. There's a product deleted (%s).",
-                userIdentity.getName(), productId);
-        sendMail("Product Deleted", message, userIdentity.getEmail());
-    }
-
 }

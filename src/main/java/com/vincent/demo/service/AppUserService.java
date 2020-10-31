@@ -1,5 +1,8 @@
 package com.vincent.demo.service;
 
+import com.vincent.demo.aop.ActionType;
+import com.vincent.demo.aop.EntityType;
+import com.vincent.demo.aop.SendEmail;
 import com.vincent.demo.converter.AppUserConverter;
 import com.vincent.demo.entity.app_user.AppUser;
 import com.vincent.demo.entity.app_user.AppUserRequest;
@@ -23,6 +26,7 @@ public class AppUserService {
         this.passwordEncoder = new BCryptPasswordEncoder();
     }
 
+    @SendEmail(entity = EntityType.APP_USER, action = ActionType.CREATE)
     public AppUserResponse createUser(AppUserRequest request) {
         Optional<AppUser> existingUser = repository.findByEmailAddress(request.getEmailAddress());
         if (existingUser.isPresent()) {
