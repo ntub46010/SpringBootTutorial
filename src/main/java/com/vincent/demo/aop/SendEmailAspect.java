@@ -45,7 +45,7 @@ public class SendEmailAspect {
 
     @AfterReturning(pointcut = "pointcut()", returning = "result")
     public void sendEmail(JoinPoint joinPoint, Object result) {
-        if (!userIdentity.isAnonymous()) {
+        if (userIdentity.isAnonymous()) {
             return;
         }
 
