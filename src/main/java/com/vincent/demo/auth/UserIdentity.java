@@ -19,7 +19,7 @@ public class UserIdentity {
     }
 
     public boolean isAnonymous() {
-        return !EMPTY_USER.equals(getSpringUser());
+        return EMPTY_USER.equals(getSpringUser());
     }
 
     public String getId() {
