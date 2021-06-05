@@ -38,7 +38,7 @@ public class BaseTest {
 
     protected HttpHeaders httpHeaders;
     protected final ObjectMapper mapper = new ObjectMapper();
-    private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private final String USER_PASSWORD = "123456";
 
     @Before
@@ -47,53 +47,35 @@ public class BaseTest {
         httpHeaders.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
     }
 
-    @Before
-    public void initTestUser() throws Exception {
-        for (TestUser user : TestUser.values()) {
-            createTestUser(user.getEmailAddress(), user.getAuthorities());
-        }
-        login(TestUser.ANDY);
-    }
-
     @After
     public void clearDB() {
         productRepository.deleteAll();
         appUserRepository.deleteAll();
     }
 
-    protected AppUser createTestUser(String emailAddress, List<UserAuthority> authorities) {
-        if (!emailAddress.contains("@")) {
-            throw new RuntimeException("Email address format is incorrect.");
-        }
+    protected AppUser createUser(String name, List<UserAuthority> authorities) {
+        AppUser appUser = new AppUser();
+        appUser.setEmailAddress(name + "@test.com");
+        appUser.setPassword(new BCryptPasswordEncoder().encode(USER_PASSWORD));
+        appUser.setName(name);
+        appUser.setAuthorities(authorities);
 
-        String name = emailAddress.substring(0, emailAddress.indexOf("@"));
-        AppUser user = new AppUser();
-        user.setEmailAddress(emailAddress);
-        user.setPassword(passwordEncoder.encode(USER_PASSWORD));
-        user.setName(name);
-        user.setAuthorities(authorities);
-
-        return appUserRepository.insert(user);
+        return appUserRepository.insert(appUser);
     }
 
     protected void login(String emailAddress) throws Exception {
-        AuthRequest request = new AuthRequest();
-        request.setUsername(emailAddress);
-        request.setPassword(USER_PASSWORD);
-
+        AuthRequest authReq = new AuthRequest();
+        authReq.setUsername(emailAddress);
+        authReq.setPassword(USER_PASSWORD);
         MvcResult result = mockMvc.perform(post("/auth")
                 .headers(httpHeaders)
-                .content(mapper.writeValueAsString(request)))
+                .content(mapper.writeValueAsString(authReq)))
                 .andExpect(status().isOk())
                 .andReturn();
 
-        JSONObject responseBody = new JSONObject(result.getResponse().getContentAsString());
-        String accessToken = responseBody.getString("token");
+        JSONObject tokenRes = new JSONObject(result.getResponse().getContentAsString());
+        String accessToken = tokenRes.getString("token");
         httpHeaders.add(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
-    }
-
-    protected void login(TestUser user) throws Exception {
-        login(user.getEmailAddress());
     }
 
     protected void logout() {

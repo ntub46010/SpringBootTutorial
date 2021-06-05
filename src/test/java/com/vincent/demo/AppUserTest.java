@@ -21,7 +21,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @RunWith(SpringRunner.class)
 public class AppUserTest extends BaseTest {
-
     private final String URL_USER = "/users";
 
     @Test
@@ -53,13 +52,9 @@ public class AppUserTest extends BaseTest {
 
     @Test
     public void testGetUser() throws Exception {
-        AppUser user = new AppUser();
-        user.setEmailAddress("vincent@gmail.com");
-        user.setPassword("123456");
-        user.setName("Vincent");
-        user.setAuthorities(Collections.singletonList(UserAuthority.NORMAL));
-        appUserRepository.insert(user);
+        AppUser user = createUser("Vincent", Collections.singletonList(UserAuthority.NORMAL));
 
+        login(user.getEmailAddress());
         mockMvc.perform(get(URL_USER + "/" + user.getId())
                 .headers(httpHeaders))
                 .andExpect(status().isOk())
@@ -73,6 +68,10 @@ public class AppUserTest extends BaseTest {
 
     @Test
     public void testGetUsers() throws Exception {
+        AppUser adminUser = createUser("Vincent", Arrays.asList(UserAuthority.ADMIN, UserAuthority.NORMAL));
+        createUser("Peggy", Collections.singletonList(UserAuthority.NORMAL));
+
+        login(adminUser.getEmailAddress());
         mockMvc.perform(get(URL_USER)
                 .headers(httpHeaders))
                 .andExpect(status().isOk())
@@ -80,13 +79,8 @@ public class AppUserTest extends BaseTest {
     }
 
     @Test
-    public void test422WhenCreateUserWithExistingEmail() throws Exception {
-        AppUser existingUser = new AppUser();
-        existingUser.setEmailAddress("vincent@gmail.com");
-        existingUser.setPassword("123456");
-        existingUser.setName("Vincent");
-        existingUser.setAuthorities(Collections.singletonList(UserAuthority.NORMAL));
-        appUserRepository.insert(existingUser);
+    public void test409WhenCreateUserWithExistingEmail() throws Exception {
+        AppUser existingUser = createUser("Vincent", Collections.singletonList(UserAuthority.NORMAL));
 
         AppUserRequest request = new AppUserRequest();
         request.setEmailAddress(existingUser.getEmailAddress());
@@ -102,9 +96,11 @@ public class AppUserTest extends BaseTest {
 
     @Test
     public void test404WhenGetNoExistUser() throws Exception {
+        AppUser user = createUser("Vincent", Collections.singletonList(UserAuthority.NORMAL));
+
+        login(user.getEmailAddress());
         mockMvc.perform(get(URL_USER + "/123")
                 .headers(httpHeaders))
                 .andExpect(status().isNotFound());
     }
-
 }
