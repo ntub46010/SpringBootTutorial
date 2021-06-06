@@ -1,5 +1,7 @@
 package com.vincent.demo;
 
+import com.vincent.demo.entity.app_user.AppUser;
+import com.vincent.demo.entity.app_user.UserAuthority;
 import com.vincent.demo.entity.product.Product;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -15,6 +17,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -28,6 +31,9 @@ public class ProductTest extends BaseTest {
 
     @Test
     public void testCreateProduct() throws Exception {
+        AppUser user = createUser("Vincent", Collections.singletonList(UserAuthority.NORMAL));
+        login(user.getEmailAddress());
+
         JSONObject request = new JSONObject();
         request.put("name", "Harry Potter");
         request.put("price", 450);
@@ -63,6 +69,7 @@ public class ProductTest extends BaseTest {
 
     @Test
     public void testReplaceProduct() throws Exception {
+        AppUser user = createUser("Vincent", Collections.singletonList(UserAuthority.NORMAL));
         Product product = createProduct("Economics", 450);
         productRepository.insert(product);
 
@@ -70,6 +77,7 @@ public class ProductTest extends BaseTest {
         request.put("name", "Macroeconomics");
         request.put("price", 550);
 
+        login(user.getEmailAddress());
         mockMvc.perform(put("/products/" + product.getId())
                 .headers(httpHeaders)
                 .content(request.toString()))
@@ -81,9 +89,11 @@ public class ProductTest extends BaseTest {
 
     @Test(expected = RuntimeException.class)
     public void testDeleteProduct() throws Exception {
+        AppUser user = createUser("Vincent", Collections.singletonList(UserAuthority.NORMAL));
         Product product = createProduct("Economics", 450);
         productRepository.insert(product);
 
+        login(user.getEmailAddress());
         mockMvc.perform(delete("/products/" + product.getId())
                 .headers(httpHeaders))
                 .andExpect(status().isNoContent());
@@ -130,10 +140,13 @@ public class ProductTest extends BaseTest {
 
     @Test
     public void get400WhenCreateProductWithEmptyName() throws Exception {
+        AppUser user = createUser("Vincent", Collections.singletonList(UserAuthority.NORMAL));
+
         JSONObject request = new JSONObject();
         request.put("name", "");
         request.put("price", 350);
 
+        login(user.getEmailAddress());
         mockMvc.perform(post("/products")
                 .headers(httpHeaders)
                 .content(request.toString()))
@@ -142,6 +155,7 @@ public class ProductTest extends BaseTest {
 
     @Test
     public void get400WhenReplaceProductWithNegativePrice() throws Exception {
+        AppUser user = createUser("Vincent", Collections.singletonList(UserAuthority.NORMAL));
         Product product = createProduct("Computer Science", 350);
         productRepository.insert(product);
 
@@ -149,6 +163,7 @@ public class ProductTest extends BaseTest {
         request.put("name", "Computer Science");
         request.put("price", -100);
 
+        login(user.getEmailAddress());
         mockMvc.perform(put("/products/" + product.getId())
                 .headers(httpHeaders)
                 .content(request.toString()))
@@ -162,5 +177,4 @@ public class ProductTest extends BaseTest {
 
         return product;
     }
-
 }
