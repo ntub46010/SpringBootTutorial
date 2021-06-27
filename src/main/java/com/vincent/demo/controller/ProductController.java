@@ -44,16 +44,13 @@ public class ProductController {
 
     @GetMapping
     public ResponseEntity<List<Product>> getProducts(@ModelAttribute ProductQueryParameter param) {
-        String nameKeyword = param.getKeyword();
+        String keyword = param.getKeyword();
         String orderBy = param.getOrderBy();
         String sortRule = param.getSortRule();
-
-        Comparator<Product> comparator = Objects.nonNull(orderBy) && Objects.nonNull(sortRule)
-                ? configureSortComparator(orderBy, sortRule)
-                : (p1, p2) -> 0;
+        Comparator<Product> comparator = genSortComparator(orderBy, sortRule);
 
         List<Product> products = productDB.stream()
-                .filter(p -> p.getName().toUpperCase().contains(nameKeyword.toUpperCase()))
+                .filter(p -> p.getName().toUpperCase().contains(keyword.toUpperCase()))
                 .sorted(comparator)
                 .collect(Collectors.toList());
 
@@ -90,30 +87,31 @@ public class ProductController {
                 .filter(p -> p.getId().equals(id))
                 .findFirst();
 
-        if (!productOp.isPresent()) {
+        if (productOp.isPresent()) {
+            Product product = productOp.get();
+            product.setName(request.getName());
+            product.setPrice(request.getPrice());
+
+            return ResponseEntity.ok().body(product);
+        } else {
             return ResponseEntity.notFound().build();
         }
-
-        Product product = productOp.get();
-        product.setName(request.getName());
-        product.setPrice(request.getPrice());
-
-        return ResponseEntity.ok().body(product);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProduct(@PathVariable("id") String id) {
         boolean isRemoved = productDB.removeIf(p -> p.getId().equals(id));
 
-        if (isRemoved) {
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        return isRemoved
+                ? ResponseEntity.noContent().build()
+                : ResponseEntity.notFound().build();
     }
 
-    private Comparator<Product> configureSortComparator(String orderBy, String sortRule) {
+    private Comparator<Product> genSortComparator(String orderBy, String sortRule) {
         Comparator<Product> comparator = (p1, p2) -> 0;
+        if (Objects.isNull(orderBy) || Objects.isNull(sortRule)) {
+            return comparator;
+        }
 
         if (orderBy.equalsIgnoreCase("price")) {
             comparator = Comparator.comparing(Product::getPrice);
@@ -121,10 +119,8 @@ public class ProductController {
             comparator = Comparator.comparing(Product::getName);
         }
 
-        if (sortRule.equalsIgnoreCase("desc")) {
-            comparator = comparator.reversed();
-        }
-
-        return comparator;
+        return sortRule.equalsIgnoreCase("desc")
+                ? comparator.reversed()
+                : comparator;
     }
 }
