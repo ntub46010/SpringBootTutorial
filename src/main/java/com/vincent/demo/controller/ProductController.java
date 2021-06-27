@@ -34,12 +34,12 @@ public class ProductController {
                 .filter(p -> p.getId().equals(id))
                 .findFirst();
 
-        if (!productOp.isPresent()) {
+        if (productOp.isPresent()) {
+            Product product = productOp.get();
+            return ResponseEntity.ok().body(product);
+        } else {
             return ResponseEntity.notFound().build();
         }
-
-        Product product = productOp.get();
-        return ResponseEntity.ok().body(product);
     }
 
     @GetMapping
@@ -65,7 +65,7 @@ public class ProductController {
         boolean isIdDuplicated = productDB.stream()
                 .anyMatch(p -> p.getId().equals(request.getId()));
         if (isIdDuplicated) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build();
         }
 
         Product product = new Product();
