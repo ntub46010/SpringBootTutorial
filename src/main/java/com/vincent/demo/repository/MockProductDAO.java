@@ -48,22 +48,22 @@ public class MockProductDAO {
     }
 
     public List<Product> find(ProductQueryParameter param) {
-        String nameKeyword = Optional.ofNullable(param.getKeyword()).orElse("");
+        String keyword = Optional.ofNullable(param.getKeyword()).orElse("");
         String orderBy = param.getOrderBy();
         String sortRule = param.getSortRule();
-
-        Comparator<Product> comparator = Objects.nonNull(orderBy) && Objects.nonNull(sortRule)
-                ? configureSortComparator(orderBy, sortRule)
-                : (p1, p2) -> 0;
+        Comparator<Product> comparator = genSortComparator(orderBy, sortRule);
 
         return productDB.stream()
-                .filter(p -> p.getName().contains(nameKeyword))
+                .filter(p -> p.getName().contains(keyword))
                 .sorted(comparator)
                 .collect(Collectors.toList());
     }
 
-    private Comparator<Product> configureSortComparator(String orderBy, String sortRule) {
+    private Comparator<Product> genSortComparator(String orderBy, String sortRule) {
         Comparator<Product> comparator = (p1, p2) -> 0;
+        if (Objects.isNull(orderBy) || Objects.isNull(sortRule)) {
+            return comparator;
+        }
 
         if (orderBy.equalsIgnoreCase("price")) {
             comparator = Comparator.comparing(Product::getPrice);
@@ -71,11 +71,8 @@ public class MockProductDAO {
             comparator = Comparator.comparing(Product::getName);
         }
 
-        if (sortRule.equalsIgnoreCase("desc")) {
-            comparator = comparator.reversed();
-        }
-
-        return comparator;
+        return sortRule.equalsIgnoreCase("desc")
+                ? comparator.reversed()
+                : comparator;
     }
-
 }

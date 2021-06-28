@@ -2,7 +2,7 @@ package com.vincent.demo.service;
 
 import com.vincent.demo.entity.Product;
 import com.vincent.demo.exception.NotFoundException;
-import com.vincent.demo.exception.ConflictException;
+import com.vincent.demo.exception.UnprocessableEntityException;
 import com.vincent.demo.parameter.ProductQueryParameter;
 import com.vincent.demo.repository.MockProductDAO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +19,7 @@ public class ProductService {
     public Product createProduct(Product request) {
         boolean isIdDuplicated = productDAO.find(request.getId()).isPresent();
         if (isIdDuplicated) {
-            throw new ConflictException("The id of the product is duplicated.");
+            throw new UnprocessableEntityException("The id of the product is duplicated.");
         }
 
         Product product = new Product();
