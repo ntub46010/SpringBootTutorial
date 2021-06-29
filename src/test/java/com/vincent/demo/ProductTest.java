@@ -164,9 +164,9 @@ public class ProductTest {
 
     @Test
     public void get400WhenCreateProductWithEmptyName() throws Exception {
-        JSONObject request = new JSONObject();
-        request.put("name", "");
-        request.put("price", 350);
+        JSONObject request = new JSONObject()
+                .put("name", "")
+                .put("price", 350);
 
         mockMvc.perform(post("/products")
                 .headers(httpHeaders)
@@ -179,9 +179,9 @@ public class ProductTest {
         Product product = createProduct("Computer Science", 350);
         productRepository.insert(product);
 
-        JSONObject request = new JSONObject();
-        request.put("name", "Computer Science");
-        request.put("price", -100);
+        JSONObject request = new JSONObject()
+                .put("name", "Computer Science")
+                .put("price", -100);
 
         mockMvc.perform(put("/products/" + product.getId())
                 .headers(httpHeaders)
