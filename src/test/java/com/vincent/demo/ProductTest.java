@@ -99,9 +99,9 @@ public class ProductTest {
         Product product = createProduct("Economics", 450);
         productRepository.insert(product);
 
-        JSONObject request = new JSONObject();
-        request.put("name", "Macroeconomics");
-        request.put("price", 550);
+        JSONObject request = new JSONObject()
+                .put("name", "Macroeconomics")
+                .put("price", 550);
 
         mockMvc.perform(put("/products/" + product.getId())
                 .headers(httpHeaders)
@@ -158,7 +158,8 @@ public class ProductTest {
         Assert.assertEquals(p3.getId(), productIds.get(3));
 
         Assert.assertEquals(HttpStatus.OK.value(), mockHttpResponse.getStatus());
-        Assert.assertEquals("application/json;charset=UTF-8", mockHttpResponse.getContentType());
+        Assert.assertEquals(MediaType.APPLICATION_JSON_VALUE,
+                mockHttpResponse.getHeader(HttpHeaders.CONTENT_TYPE));
     }
 
     private Product createProduct(String name, int price) {
