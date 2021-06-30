@@ -3,12 +3,14 @@ package com.vincent.demo.service;
 import com.vincent.demo.config.MailConfig;
 import com.vincent.demo.entity.SendMailRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.mail.MailAuthenticationException;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.stereotype.Service;
 
-import javax.mail.*;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-import java.util.List;
+import javax.annotation.PostConstruct;
 import java.util.Properties;
 
 @Service
@@ -17,35 +19,44 @@ public class MailService {
     @Autowired
     private MailConfig mailConfig;
 
-    public void sendMail(SendMailRequest request) {
-        Properties props = new Properties();
-        props.put("mail.smtp.host", mailConfig.getHost());
-        props.put("mail.smtp.port", mailConfig.getPort());
-        props.put("mail.smtp.auth", String.valueOf(mailConfig.isAuthEnabled()));
-        props.put("mail.smtp.starttls.enable",
-                String.valueOf(mailConfig.isStarttlsEnabled()));
+    private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
-        Session session = Session.getInstance(props, new Authenticator(){
-            protected PasswordAuthentication getPasswordAuthentication(){
-                return new PasswordAuthentication(
-                        mailConfig.getUserAddress(), mailConfig.getUserPwd());
-            }
-        });
+    private static final String HOST = "smtp.gmail.com";
+    private static final int PORT = 587;
+    private static final boolean ENABLE_AUTH = true;
+    private static final boolean ENABLE_STARTTLS = true;
+    private static final String PROTOCOL = "smtp";
+    private static final String USERNAME = "your_email_address@gmail.com";
+    private static final String PASSWORD = "your_email_password";
+    private JavaMailSenderImpl mailSender;
 
-        try {
-            Message message = new MimeMessage(session);
-            message.setSubject(request.getSubject());
-            message.setContent(request.getContent(), "text/html; charset=UTF-8");
-            message.setFrom(new InternetAddress(
-                    mailConfig.getUserAddress(), mailConfig.getUserDisplayName()));
-            for (String address : request.getReceivers()) {
-                message.addRecipient(Message.RecipientType.TO, new InternetAddress(address));
-            }
+    @PostConstruct
+    private void init() {
+        mailSender = new JavaMailSenderImpl();
+        mailSender.setHost(HOST);
+        mailSender.setPort(PORT);
+        mailSender.setUsername(USERNAME);
+        mailSender.setPassword(PASSWORD);
 
-            Transport.send(message);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        Properties props = mailSender.getJavaMailProperties();
+        props.put("mail.smtp.auth", ENABLE_AUTH);
+        props.put("mail.smtp.starttls.enable", ENABLE_STARTTLS);
+        props.put("mail.transport.protocol", PROTOCOL);
     }
 
+    public void sendMail(SendMailRequest request) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom(USERNAME);
+        message.setTo(request.getReceivers());
+        message.setSubject(request.getSubject());
+        message.setText(request.getContent());
+
+        try {
+            mailSender.send(message);
+        } catch (MailAuthenticationException e) {
+            LOGGER.error(e.getMessage());
+        } catch (Exception e) {
+            LOGGER.warn(e.getMessage());
+        }
+    }
 }
