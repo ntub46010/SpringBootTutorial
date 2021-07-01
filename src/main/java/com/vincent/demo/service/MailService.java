@@ -2,40 +2,35 @@ package com.vincent.demo.service;
 
 import com.vincent.demo.entity.SendMailRequest;
 
-import javax.mail.*;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-import java.util.Properties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.mail.MailAuthenticationException;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 
 public class MailService {
-    private Properties props;
-    private InternetAddress fromAddress;
-    private Authenticator authenticator;
 
-    public MailService(Properties props, InternetAddress fromAddress,
-                       Authenticator authenticator) {
-        this.props = props;
-        this.fromAddress = fromAddress;
-        this.authenticator = authenticator;
+    private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
+
+    private final JavaMailSenderImpl mailSender;
+
+    public MailService(JavaMailSenderImpl mailSender) {
+        this.mailSender = mailSender;
     }
 
     public void sendMail(SendMailRequest request) {
-        Session session = Session.getInstance(props, authenticator);
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom(mailSender.getUsername());
+        message.setTo(request.getReceivers());
+        message.setSubject(request.getSubject());
+        message.setText(request.getContent());
 
         try {
-            Message message = new MimeMessage(session);
-            message.setSubject(request.getSubject());
-            message.setContent(request.getContent(), "text/html; charset=UTF-8");
-            message.setFrom(fromAddress);
-            for (String address : request.getReceivers()) {
-                message.addRecipient(Message.RecipientType.TO,
-                        new InternetAddress(address));
-            }
-
-            Transport.send(message);
+            mailSender.send(message);
+        } catch (MailAuthenticationException e) {
+            LOGGER.error(e.getMessage());
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.warn(e.getMessage());
         }
     }
-
 }

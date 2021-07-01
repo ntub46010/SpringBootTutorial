@@ -1,7 +1,6 @@
 package com.vincent.demo.entity;
 
 import javax.validation.constraints.NotEmpty;
-import java.util.List;
 
 public class SendMailRequest {
 
@@ -12,7 +11,7 @@ public class SendMailRequest {
     private String content;
 
     @NotEmpty
-    private List<String> receivers;
+    private String[] receivers;
 
     public String getSubject() {
         return subject;
@@ -30,11 +29,11 @@ public class SendMailRequest {
         this.content = content;
     }
 
-    public List<String> getReceivers() {
+    public String[] getReceivers() {
         return receivers;
     }
 
-    public void setReceivers(List<String> receivers) {
+    public void setReceivers(String[] receivers) {
         this.receivers = receivers;
     }
 }
