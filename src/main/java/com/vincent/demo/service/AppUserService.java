@@ -4,8 +4,8 @@ import com.vincent.demo.converter.AppUserConverter;
 import com.vincent.demo.entity.app_user.AppUser;
 import com.vincent.demo.entity.app_user.AppUserRequest;
 import com.vincent.demo.entity.app_user.AppUserResponse;
-import com.vincent.demo.exception.ConflictException;
 import com.vincent.demo.exception.NotFoundException;
+import com.vincent.demo.exception.UnprocessableEntityException;
 import com.vincent.demo.repository.AppUserRepository;
 
 import java.util.List;
@@ -22,7 +22,7 @@ public class AppUserService {
     public AppUserResponse createUser(AppUserRequest request) {
         Optional<AppUser> existingUser = repository.findByEmailAddress(request.getEmailAddress());
         if (existingUser.isPresent()) {
-            throw new ConflictException("This email address has been used.");
+            throw new UnprocessableEntityException("This email address has been used.");
         }
 
         AppUser user = AppUserConverter.toAppUser(request);
