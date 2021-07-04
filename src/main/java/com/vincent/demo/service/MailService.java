@@ -40,14 +40,13 @@ public class MailService {
 
         try {
             mailSender.send(message);
+            mailMessages.add(content);
+            printMessages();
         } catch (MailAuthenticationException e) {
             LOGGER.error(e.getMessage());
         } catch (Exception e) {
             LOGGER.warn(e.getMessage());
         }
-
-        mailMessages.add(content);
-        printMessages();
     }
 
     public void sendNewProductMail(String productId) {
