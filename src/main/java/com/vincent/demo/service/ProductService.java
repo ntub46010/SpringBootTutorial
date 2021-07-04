@@ -69,7 +69,7 @@ public class ProductService {
         String nameKeyword = Optional.ofNullable(param.getKeyword()).orElse("");
         int priceFrom = Optional.ofNullable(param.getPriceFrom()).orElse(0);
         int priceTo = Optional.ofNullable(param.getPriceTo()).orElse(Integer.MAX_VALUE);
-        Sort sort = configureSort(param.getOrderBy(), param.getSortRule());
+        Sort sort = genSortingStrategy(param.getOrderBy(), param.getSortRule());
 
         List<Product> products = repository.findByPriceBetweenAndNameLikeIgnoreCase(priceFrom, priceTo, nameKeyword, sort);
 
@@ -78,11 +78,11 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
-    private Sort configureSort(String orderBy, String sortRule) {
+    private Sort genSortingStrategy(String orderBy, String sortRule) {
         Sort sort = Sort.unsorted();
         if (Objects.nonNull(orderBy) && Objects.nonNull(sortRule)) {
             Sort.Direction direction = Sort.Direction.fromString(sortRule);
-            sort = new Sort(direction, orderBy);
+            sort = Sort.by(direction, orderBy);
         }
 
         return sort;

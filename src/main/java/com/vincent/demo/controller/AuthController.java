@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
 import java.util.Collections;
 import java.util.Map;
 
@@ -21,7 +22,7 @@ public class AuthController {
     private JWTService jwtService;
 
     @PostMapping
-    public ResponseEntity<Map<String, String>> generateToken(@RequestBody AuthRequest request) {
+    public ResponseEntity<Map<String, String>> generateToken(@Valid @RequestBody AuthRequest request) {
         String token = jwtService.generateToken(request);
         Map<String, String> response = Collections.singletonMap("token", token);
 

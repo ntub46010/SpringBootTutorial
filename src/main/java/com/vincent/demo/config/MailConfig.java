@@ -2,138 +2,92 @@ package com.vincent.demo.config;
 
 import com.vincent.demo.auth.UserIdentity;
 import com.vincent.demo.service.MailService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.annotation.Scope;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 
-import javax.mail.Authenticator;
-import javax.mail.PasswordAuthentication;
-import javax.mail.internet.InternetAddress;
 import java.util.Properties;
 
 @Configuration
-@ConfigurationProperties(prefix = "mail")
 @PropertySource("classpath:mail.properties")
 public class MailConfig {
 
-    private String gmailHost;
-    private int gmailPort;
-    private String gmailUserAddress;
-    private String gmailUserPwd;
-
-    private String yahooHost;
-    private int yahooPort;
-    private String yahooUserAddress;
-    private String yahooUserPwd;
-
-    private boolean authEnabled;
-    private boolean starttlsEnabled;
-    private String userDisplayName;
-
+    @Value("${mail.platform}")
     private String platform;
+
+    @Value("${mail.auth.enabled}")
+    private boolean authEnabled;
+
+    @Value("${mail.starttls.enabled}")
+    private boolean starttlsEnabled;
+
+    @Value("${mail.protocol}")
+    private String protocol;
+
+    // region Gmail config
+    @Value("${mail.gmail.host}")
+    private String gmailHost;
+
+    @Value("${mail.gmail.port}")
+    private int gmailPort;
+
+    @Value("${mail.gmail.username}")
+    private String gmailUsername;
+
+    @Value("${mail.gmail.password}")
+    private String gmailPassword;
+    // endregion Gmail
+
+    // region Yahoo Mail config
+    @Value("${mail.yahoo.host}")
+    private String yahooHost;
+
+    @Value("${mail.yahoo.port}")
+    private int yahooPort;
+
+    @Value("${mail.yahoo.username}")
+    private String yahooUsername;
+
+    @Value("${mail.yahoo.password}")
+    private String yahooPassword;
+    // endregion Yahoo Mail
 
     @Bean
     @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
-    public MailService mailService(UserIdentity userIdentity) throws Exception {
-        return "yahoo".equals(platform)
-                ? yahooMailService(userIdentity)
-                : gmailService(userIdentity);
+    public MailService mailService(UserIdentity userIdentity) {
+        JavaMailSenderImpl mailSender = "gmail".equals(platform)
+                ? gmailSender()
+                : yahooSender();
+
+        Properties props = mailSender.getJavaMailProperties();
+        props.put("mail.smtp.auth", authEnabled);
+        props.put("mail.smtp.starttls.enable", starttlsEnabled);
+        props.put("mail.transport.protocol", protocol);
+
+        return new MailService(mailSender, userIdentity);
     }
 
-    private MailService gmailService(UserIdentity userIdentity) throws Exception {
-        Properties props = new Properties();
-        props.put("mail.smtp.host", gmailHost);
-        props.put("mail.smtp.port", gmailPort);
-        props.put("mail.smtp.auth", String.valueOf(authEnabled));
-        props.put("mail.smtp.starttls.enable",
-                String.valueOf(starttlsEnabled));
+    private JavaMailSenderImpl gmailSender() {
+        JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+        mailSender.setHost(gmailHost);
+        mailSender.setPort(gmailPort);
+        mailSender.setUsername(gmailUsername);
+        mailSender.setPassword(gmailPassword);
 
-        InternetAddress fromAddress =
-                new InternetAddress(gmailUserAddress, userDisplayName);
-
-        PasswordAuthentication pwdAuth =
-                new PasswordAuthentication(gmailUserAddress, gmailUserPwd);
-
-        Authenticator authenticator = new Authenticator() {
-            protected PasswordAuthentication getPasswordAuthentication() {
-                return pwdAuth;
-            }
-        };
-
-        return new MailService(props, fromAddress, authenticator, userIdentity);
+        return mailSender;
     }
 
-    private MailService yahooMailService(UserIdentity userIdentity) throws Exception {
-        Properties props = new Properties();
-        props.put("mail.smtp.host", yahooHost);
-        props.put("mail.smtp.port", yahooPort);
-        props.put("mail.smtp.auth", String.valueOf(authEnabled));
-        props.put("mail.smtp.starttls.enable",
-                String.valueOf(starttlsEnabled));
+    private JavaMailSenderImpl yahooSender() {
+        JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+        mailSender.setHost(yahooHost);
+        mailSender.setPort(yahooPort);
+        mailSender.setUsername(yahooUsername);
+        mailSender.setPassword(yahooPassword);
 
-        InternetAddress fromAddress =
-                new InternetAddress(yahooUserAddress, userDisplayName);
-
-        PasswordAuthentication pwdAuth =
-                new PasswordAuthentication(yahooUserAddress, yahooUserPwd);
-
-        Authenticator authenticator = new Authenticator() {
-            protected PasswordAuthentication getPasswordAuthentication() {
-                return pwdAuth;
-            }
-        };
-
-        return new MailService(props, fromAddress, authenticator, userIdentity);
-    }
-
-    public void setPlatform(String platform) {
-        this.platform = platform;
-    }
-
-    public void setGmailHost(String gmailHost) {
-        this.gmailHost = gmailHost;
-    }
-
-    public void setGmailPort(int gmailPort) {
-        this.gmailPort = gmailPort;
-    }
-
-    public void setGmailUserAddress(String gmailUserAddress) {
-        this.gmailUserAddress = gmailUserAddress;
-    }
-
-    public void setGmailUserPwd(String gmailUserPwd) {
-        this.gmailUserPwd = gmailUserPwd;
-    }
-
-    public void setYahooHost(String yahooHost) {
-        this.yahooHost = yahooHost;
-    }
-
-    public void setYahooPort(int yahooPort) {
-        this.yahooPort = yahooPort;
-    }
-
-    public void setYahooUserAddress(String yahooUserAddress) {
-        this.yahooUserAddress = yahooUserAddress;
-    }
-
-    public void setYahooUserPwd(String yahooUserPwd) {
-        this.yahooUserPwd = yahooUserPwd;
-    }
-
-    public void setAuthEnabled(boolean authEnabled) {
-        this.authEnabled = authEnabled;
-    }
-
-    public void setStarttlsEnabled(boolean starttlsEnabled) {
-        this.starttlsEnabled = starttlsEnabled;
-    }
-
-    public void setUserDisplayName(String userDisplayName) {
-        this.userDisplayName = userDisplayName;
+        return mailSender;
     }
 }
