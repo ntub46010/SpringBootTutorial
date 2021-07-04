@@ -8,8 +8,10 @@ import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
@@ -34,9 +36,9 @@ public class ProductTest extends BaseTest {
         AppUser user = createUser("Vincent", Collections.singletonList(UserAuthority.NORMAL));
         login(user.getEmailAddress());
 
-        JSONObject request = new JSONObject();
-        request.put("name", "Harry Potter");
-        request.put("price", 450);
+        JSONObject request = new JSONObject()
+                .put("name", "Harry Potter")
+                .put("price", 450);
 
         RequestBuilder requestBuilder =
                 MockMvcRequestBuilders
@@ -50,8 +52,8 @@ public class ProductTest extends BaseTest {
                 .andExpect(jsonPath("$.id").hasJsonPath())
                 .andExpect(jsonPath("$.name").value(request.getString("name")))
                 .andExpect(jsonPath("$.price").value(request.getInt("price")))
-                .andExpect(header().exists("Location"))
-                .andExpect(header().string("Content-Type", "application/json;charset=UTF-8"));
+                .andExpect(header().exists(HttpHeaders.LOCATION))
+                .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE));
     }
 
     @Test
@@ -73,9 +75,9 @@ public class ProductTest extends BaseTest {
         Product product = createProduct("Economics", 450);
         productRepository.insert(product);
 
-        JSONObject request = new JSONObject();
-        request.put("name", "Macroeconomics");
-        request.put("price", 550);
+        JSONObject request = new JSONObject()
+                .put("name", "Macroeconomics")
+                .put("price", 550);
 
         login(user.getEmailAddress());
         mockMvc.perform(put("/products/" + product.getId())
@@ -135,16 +137,17 @@ public class ProductTest extends BaseTest {
         Assert.assertEquals(p3.getId(), productIds.get(3));
 
         Assert.assertEquals(HttpStatus.OK.value(), mockHttpResponse.getStatus());
-        Assert.assertEquals("application/json;charset=UTF-8", mockHttpResponse.getContentType());
+        Assert.assertEquals(MediaType.APPLICATION_JSON_VALUE,
+                mockHttpResponse.getHeader(HttpHeaders.CONTENT_TYPE));
     }
 
     @Test
     public void get400WhenCreateProductWithEmptyName() throws Exception {
         AppUser user = createUser("Vincent", Collections.singletonList(UserAuthority.NORMAL));
 
-        JSONObject request = new JSONObject();
-        request.put("name", "");
-        request.put("price", 350);
+        JSONObject request = new JSONObject()
+                .put("name", "")
+                .put("price", 350);
 
         login(user.getEmailAddress());
         mockMvc.perform(post("/products")
@@ -159,9 +162,9 @@ public class ProductTest extends BaseTest {
         Product product = createProduct("Computer Science", 350);
         productRepository.insert(product);
 
-        JSONObject request = new JSONObject();
-        request.put("name", "Computer Science");
-        request.put("price", -100);
+        JSONObject request = new JSONObject()
+                .put("name", "Computer Science")
+                .put("price", -100);
 
         login(user.getEmailAddress());
         mockMvc.perform(put("/products/" + product.getId())

@@ -91,11 +91,11 @@ public class AppUserTest extends BaseTest {
         mockMvc.perform(post(URL_USER)
                 .headers(httpHeaders)
                 .content(mapper.writeValueAsString(request)))
-                .andExpect(status().isConflict());
+                .andExpect(status().isUnprocessableEntity());
     }
 
     @Test
-    public void test404WhenGetNoExistUser() throws Exception {
+    public void test404WhenGetNonExistentUser() throws Exception {
         AppUser user = createUser("Vincent", Collections.singletonList(UserAuthority.NORMAL));
 
         login(user.getEmailAddress());

@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Map;
 
@@ -53,7 +54,8 @@ public class SendEmailAspect {
         String subject = composeSubject(annotation);
         String message = composeMessage(annotation, joinPoint, result);
 
-        mailService.sendMail(subject, message, userIdentity.getEmail());
+        mailService.sendMail(subject, message,
+                Collections.singletonList(userIdentity.getEmail()));
     }
 
     private SendEmail getAnnotation(JoinPoint joinPoint) {

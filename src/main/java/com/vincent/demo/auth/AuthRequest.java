@@ -1,7 +1,12 @@
 package com.vincent.demo.auth;
 
+import javax.validation.constraints.NotBlank;
+
 public class AuthRequest {
+    @NotBlank
     private String username;
+
+    @NotBlank
     private String password;
 
     public String getUsername() {
