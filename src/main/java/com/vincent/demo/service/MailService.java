@@ -17,14 +17,15 @@ public class MailService {
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
     private final JavaMailSenderImpl mailSender;
-    private final List<String> mailMessages;
     private final long tag;
-    private final String LOG_EMAIL = "your_email_account@gmail.com";
+    private final List<String> mailMessages;
+    private final String LOG_EMAIL;
 
     public MailService(JavaMailSenderImpl mailSender) {
         this.mailSender = mailSender;
         this.tag = System.currentTimeMillis();
         this.mailMessages = new ArrayList<>();
+        this.LOG_EMAIL = mailSender.getUsername();
     }
 
     public void sendMail(SendMailRequest request) {
