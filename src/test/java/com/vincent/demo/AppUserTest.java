@@ -141,11 +141,11 @@ public class AppUserTest {
         mockMvc.perform(post(URL_USER)
                 .headers(httpHeaders)
                 .content(mapper.writeValueAsString(request)))
-                .andExpect(status().isConflict());
+                .andExpect(status().isUnprocessableEntity());
     }
 
     @Test
-    public void test404WhenGetNoExistUser() throws Exception {
+    public void test404WhenGetNonExistentUser() throws Exception {
         mockMvc.perform(get(URL_USER + "/123")
                 .headers(httpHeaders))
                 .andExpect(status().isNotFound());

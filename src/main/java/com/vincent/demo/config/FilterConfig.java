@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class FilterConfig {
 
-    @Bean
+    //@Bean
     public FilterRegistrationBean logApiFilter() {
         FilterRegistrationBean<LogApiFilter> bean = new FilterRegistrationBean<>();
         bean.setFilter(new LogApiFilter());
@@ -20,7 +20,7 @@ public class FilterConfig {
         return bean;
     }
 
-    @Bean
+    //@Bean
     public FilterRegistrationBean logProcessTimeFilter() {
         FilterRegistrationBean<LogProcessTimeFilter> bean = new FilterRegistrationBean<>();
         bean.setFilter(new LogProcessTimeFilter());

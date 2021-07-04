@@ -20,8 +20,8 @@ public class ObjectMapperTest {
         book.setIsbn("978-986-123-456-7");
         book.setCreatedTime(new Date());
 
-        String strBookJSON = mapper.writeValueAsString(book);
-        JSONObject bookJSON = new JSONObject(strBookJSON);
+        String bookJSONStr = mapper.writeValueAsString(book);
+        JSONObject bookJSON = new JSONObject(bookJSONStr);
 
         Assert.assertEquals(book.getId(), bookJSON.getString("id"));
         Assert.assertEquals(book.getName(), bookJSON.getString("name"));
@@ -32,14 +32,13 @@ public class ObjectMapperTest {
 
     @Test
     public void testDeserializeJSONToPublisher() throws Exception {
-        JSONObject publisherJSON = new JSONObject();
-        publisherJSON
+        JSONObject publisherJSON = new JSONObject()
                 .put("companyName", "Taipei Company")
                 .put("address", "Taipei")
                 .put("tel", "02-1234-5678");
 
-        String strPublisherJSON = publisherJSON.toString();
-        Publisher publisher = mapper.readValue(strPublisherJSON, Publisher.class);
+        String publisherJSONStr = publisherJSON.toString();
+        Publisher publisher = mapper.readValue(publisherJSONStr, Publisher.class);
 
         Assert.assertEquals(publisherJSON.getString("companyName"), publisher.getCompanyName());
         Assert.assertEquals(publisherJSON.getString("address"), publisher.getAddress());

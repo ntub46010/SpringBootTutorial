@@ -10,7 +10,7 @@ public class ProductRequest {
     private String name;
 
     @NotNull
-    @Min(value = 0, message = "Price should be positive or 0.")
+    @Min(value = 0, message = "Price should be greater or equal to 0.")
     private Integer price;
 
     public String getName() {
