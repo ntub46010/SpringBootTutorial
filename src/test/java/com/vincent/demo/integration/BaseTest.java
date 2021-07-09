@@ -1,4 +1,4 @@
-package com.vincent.demo;
+package com.vincent.demo.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vincent.demo.auth.AuthRequest;

@@ -1,4 +1,4 @@
-package com.vincent.demo;
+package com.vincent.demo.integration;
 
 import com.vincent.demo.entity.app_user.AppUser;
 import com.vincent.demo.entity.app_user.UserAuthority;

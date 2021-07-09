@@ -35,7 +35,7 @@ public class AppUserService {
 
         AppUser user = AppUserConverter.toAppUser(request);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user = repository.insert(user);
+        repository.insert(user);
         return AppUserConverter.toAppUserResponse(user);
     }
 

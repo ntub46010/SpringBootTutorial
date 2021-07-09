@@ -24,5 +24,4 @@ public class SpringUserService implements UserDetailsService {
             throw new UsernameNotFoundException("Username is wrong.");
         }
     }
-
 }

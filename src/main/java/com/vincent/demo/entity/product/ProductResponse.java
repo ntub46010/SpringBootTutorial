@@ -4,7 +4,7 @@ public class ProductResponse {
     private String id;
     private String name;
     private int price;
-    private String creator;
+    private String creatorId;
 
     public String getId() {
         return id;
@@ -30,11 +30,11 @@ public class ProductResponse {
         this.price = price;
     }
 
-    public String getCreator() {
-        return creator;
+    public String getCreatorId() {
+        return creatorId;
     }
 
-    public void setCreator(String creator) {
-        this.creator = creator;
+    public void setCreatorId(String creator) {
+        this.creatorId = creator;
     }
 }

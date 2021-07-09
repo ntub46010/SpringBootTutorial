@@ -43,7 +43,7 @@ public class ProductService {
     public ProductResponse createProduct(ProductRequest request) {
         Product product = ProductConverter.toProduct(request);
         product.setCreator(userIdentity.getId());
-        product = repository.insert(product);
+        repository.insert(product);
 
         return ProductConverter.toProductResponse(product);
     }

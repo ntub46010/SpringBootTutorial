@@ -1,4 +1,4 @@
-package com.vincent.demo;
+package com.vincent.demo.unit;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONObject;

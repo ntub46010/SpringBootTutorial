@@ -1,4 +1,4 @@
-package com.vincent.demo;
+package com.vincent.demo.integration;
 
 import com.vincent.demo.entity.app_user.AppUser;
 import com.vincent.demo.entity.app_user.AppUserRequest;
@@ -79,7 +79,7 @@ public class AppUserTest extends BaseTest {
     }
 
     @Test
-    public void test409WhenCreateUserWithExistingEmail() throws Exception {
+    public void test422WhenCreateUserWithExistingEmail() throws Exception {
         AppUser existingUser = createUser("Vincent", Collections.singletonList(UserAuthority.NORMAL));
 
         AppUserRequest request = new AppUserRequest();

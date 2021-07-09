@@ -8,8 +8,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 
-@Component
-@Aspect
+//@Component
+//@Aspect
 public class LogAspect {
 
     @Pointcut("execution(* com.vincent.demo.service..*(..))")
