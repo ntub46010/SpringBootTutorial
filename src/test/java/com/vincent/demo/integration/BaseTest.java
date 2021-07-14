@@ -39,7 +39,7 @@ public class BaseTest {
     protected HttpHeaders httpHeaders;
     protected final ObjectMapper mapper = new ObjectMapper();
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-    private final String USER_PASSWORD = "123456";
+    protected final String USER_PASSWORD = "123456";
 
     @Before
     public void initHttpHeader() {
