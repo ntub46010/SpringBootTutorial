@@ -13,6 +13,8 @@ public class ProductRequest {
     @Min(value = 0, message = "Price should be greater or equal to 0.")
     private Integer price;
 
+    private boolean softDelete;
+
     public String getName() {
         return name;
     }
@@ -27,5 +29,13 @@ public class ProductRequest {
 
     public void setPrice(Integer price) {
         this.price = price;
+    }
+
+    public boolean isSoftDelete() {
+        return softDelete;
+    }
+
+    public void setSoftDelete(boolean softDelete) {
+        this.softDelete = softDelete;
     }
 }

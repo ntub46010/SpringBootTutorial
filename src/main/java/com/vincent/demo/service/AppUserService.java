@@ -7,13 +7,16 @@ import com.vincent.demo.converter.AppUserConverter;
 import com.vincent.demo.entity.app_user.AppUser;
 import com.vincent.demo.entity.app_user.AppUserRequest;
 import com.vincent.demo.entity.app_user.AppUserResponse;
+import com.vincent.demo.entity.app_user.UserAuthority;
 import com.vincent.demo.exception.NotFoundException;
 import com.vincent.demo.exception.UnprocessableEntityException;
 import com.vincent.demo.repository.AppUserRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class AppUserService {
 
@@ -51,8 +54,13 @@ public class AppUserService {
                 .orElseThrow(() -> new NotFoundException("Can't find user."));
     }
 
-    public List<AppUserResponse> getUserResponses() {
-        List<AppUser> users = repository.findAll();
+    public List<AppUserResponse> getUserResponses(List<UserAuthority> authorities) {
+        if (authorities == null || authorities.isEmpty()) {
+            authorities = Arrays.stream(UserAuthority.values())
+                    .collect(Collectors.toList());
+        }
+
+        List<AppUser> users = repository.findByAuthoritiesIn(authorities);
         return AppUserConverter.toAppUserResponses(users);
     }
 

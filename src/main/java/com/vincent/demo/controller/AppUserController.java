@@ -2,6 +2,7 @@ package com.vincent.demo.controller;
 
 import com.vincent.demo.entity.app_user.AppUserRequest;
 import com.vincent.demo.entity.app_user.AppUserResponse;
+import com.vincent.demo.entity.app_user.UserAuthority;
 import com.vincent.demo.service.AppUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -40,8 +41,9 @@ public class AppUserController {
     }
 
     @GetMapping
-    public ResponseEntity<List<AppUserResponse>> getUsers() {
-        List<AppUserResponse> users = service.getUserResponses();
+    public ResponseEntity<List<AppUserResponse>> getUsers(
+            @RequestParam(name = "authorities", required = false) List<UserAuthority> authorities) {
+        List<AppUserResponse> users = service.getUserResponses(authorities);
         return ResponseEntity.ok(users);
     }
 }

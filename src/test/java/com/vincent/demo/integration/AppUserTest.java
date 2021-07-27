@@ -79,6 +79,28 @@ public class AppUserTest extends BaseTest {
     }
 
     @Test
+    public void testGetUsersByAuthority() throws Exception {
+        AppUser adminUser =
+                createUser("Vincent", Collections.singletonList(UserAuthority.ADMIN));
+        AppUser normalUser =
+                createUser("Peggy", Collections.singletonList(UserAuthority.NORMAL));
+
+        login(adminUser.getEmailAddress());
+        mockMvc.perform(get(URL_USER)
+                .param("authorities", UserAuthority.NORMAL.name())
+                .headers(httpHeaders))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].id").value(normalUser.getId()));
+
+        mockMvc.perform(get(URL_USER)
+                .param("authorities", UserAuthority.ADMIN.name() + "," + UserAuthority.NORMAL.name())
+                .headers(httpHeaders))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)));
+    }
+
+    @Test
     public void test422WhenCreateUserWithExistingEmail() throws Exception {
         AppUser existingUser = createUser("Vincent", Collections.singletonList(UserAuthority.NORMAL));
 

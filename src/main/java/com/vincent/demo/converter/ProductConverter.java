@@ -23,7 +23,12 @@ public class ProductConverter {
     public static Product toProduct(ProductRequest request) {
         Product product = new Product();
         product.setName(request.getName());
-        product.setPrice(request.getPrice());
+
+        if (request.isSoftDelete()) {
+            product.setPrice(Integer.MIN_VALUE);
+        } else {
+            product.setPrice(request.getPrice());
+        }
 
         return product;
     }
