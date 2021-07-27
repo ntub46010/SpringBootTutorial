@@ -2,6 +2,7 @@ package com.vincent.demo.controller;
 
 import com.vincent.demo.auth.AuthRequest;
 import com.vincent.demo.auth.JWTService;
+import io.swagger.v3.oas.annotations.Hidden;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +30,7 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
+    @Hidden
     @PostMapping("/parse")
     public ResponseEntity<Map<String, Object>> parseToken(@RequestBody Map<String, String> request) {
         String token = request.get("token");

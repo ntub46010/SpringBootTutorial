@@ -1,5 +1,7 @@
 package com.vincent.demo.entity.product;
 
+import io.swagger.v3.oas.annotations.Hidden;
+
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -13,6 +15,7 @@ public class ProductRequest {
     @Min(value = 0, message = "Price should be greater or equal to 0.")
     private Integer price;
 
+    @Hidden
     private boolean softDelete;
 
     public String getName() {

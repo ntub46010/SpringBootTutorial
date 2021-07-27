@@ -1,16 +1,25 @@
 package com.vincent.demo.entity.app_user;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
 public class AppUserRequest {
+    @Schema(description = "The email address of user.", example = "vincent@gmail.com")
     @NotBlank
     private String emailAddress;
+
+    @Schema(description = "The password of user.", example = "123456", minLength = 6)
     @NotBlank
     private String password;
+
+    @Schema(description = "The full name of user.", example = "Vincent Zheng")
     @NotBlank
     private String name;
+
+    @Schema(description = "The authority of user.", required = true)
     @NotEmpty
     private List<UserAuthority> authorities;
 

@@ -2,6 +2,7 @@ package com.vincent.demo.controller;
 
 import com.vincent.demo.entity.product.ProductRequest;
 import com.vincent.demo.parameter.ProductQueryParameter;
+import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.http.MediaType;
 import com.vincent.demo.entity.product.ProductResponse;
 import com.vincent.demo.service.ProductService;
@@ -22,7 +23,9 @@ public class ProductController {
     private ProductService productService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<ProductResponse> getProduct(@PathVariable("id") String id) {
+    public ResponseEntity<ProductResponse> getProduct(
+            @Parameter(description = "ID of product.")
+            @PathVariable("id") String id) {
         ProductResponse product = productService.getProductResponse(id);
         return ResponseEntity.ok(product);
     }
