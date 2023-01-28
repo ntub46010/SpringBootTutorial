@@ -1,68 +1,56 @@
 package com.vincent.demo.controller;
 
-import com.vincent.demo.entity.Product;
-import org.springframework.http.HttpStatus;
+import com.vincent.demo.exception.OperateAbsentItemsException;
+import com.vincent.demo.model.DeleteByIdRequest;
+import com.vincent.demo.model.Product;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.annotation.PostConstruct;
-import java.net.URI;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
+import static com.vincent.demo.util.CommonUtil.toDate;
 
 @RestController
-@RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/products", produces = MediaType.APPLICATION_JSON_VALUE)
 public class ProductController {
-
-    private final List<Product> productDB = new ArrayList<>();
+    private final Map<String, Product> productDB = new LinkedHashMap<>();
 
     @PostConstruct
-    private void initDB() {
-        productDB.add(new Product("B0001", "Android Development (Java)", 380));
-        productDB.add(new Product("B0002", "Android Development (Kotlin)", 420));
-        productDB.add(new Product("B0003", "Data Structure (Java)", 250));
-        productDB.add(new Product("B0004", "Finance Management", 450));
-        productDB.add(new Product("B0005", "Human Resource Management", 330));
+    private void initData() {
+        var products = List.of(
+                new Product("B1", "Android (Java)", 380, toDate("2022-01-15")),
+                new Product("B2", "Android (Kotlin)", 420, toDate("2022-05-15")),
+                new Product("B3", "Data Structure (Java)", 250, toDate("2022-09-15")),
+                new Product("B4", "Finance Management", 450, toDate("2022-07-15")),
+                new Product("B5", "Human Resource Management", 330, toDate("2022-03-15"))
+        );
+        products.forEach(x -> productDB.put(x.getId(), x));
     }
 
-    @GetMapping("/products/{id}")
-    public ResponseEntity<Product> getProduct(@PathVariable("id") String id) {
-        Optional<Product> productOp = productDB.stream()
-                .filter(p -> p.getId().equals(id))
-                .findFirst();
-
-        if (productOp.isPresent()) {
-            Product product = productOp.get();
-            return ResponseEntity.ok().body(product);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    @GetMapping
+    public ResponseEntity<List<Product>> getProducts() {
+        var products = new ArrayList<>(productDB.values());
+        return ResponseEntity.ok(products);
     }
 
-    @PostMapping("/products")
-    public ResponseEntity<Product> createProduct(@RequestBody Product request) {
-        boolean isIdDuplicated = productDB.stream()
-                .anyMatch(p -> p.getId().equals(request.getId()));
-        if (isIdDuplicated) {
-            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build();
+    @DeleteMapping
+    public ResponseEntity<Void> deleteProducts(@RequestBody DeleteByIdRequest request) {
+        var itemIds = request.getIds();
+        var absentIds = itemIds.stream()
+                .filter(Predicate.not(productDB::containsKey))
+                .collect(Collectors.toList());
+        if (!absentIds.isEmpty()) {
+            throw new OperateAbsentItemsException();
         }
 
-        Product product = new Product();
-        product.setId(request.getId());
-        product.setName(request.getName());
-        product.setPrice(request.getPrice());
-        productDB.add(product);
-
-        URI location = ServletUriComponentsBuilder
-                .fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(product.getId())
-                .toUri();
-
-        return ResponseEntity.created(location).body(product);
+        itemIds.forEach(productDB::remove);
+        return ResponseEntity.noContent().build();
     }
-
 }

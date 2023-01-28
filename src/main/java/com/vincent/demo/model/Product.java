@@ -1,18 +1,21 @@
-package com.vincent.demo.entity;
+package com.vincent.demo.model;
+
+import java.util.Date;
 
 public class Product {
     private String id;
     private String name;
     private int price;
+    private Date createdTime;
 
     public Product() {
-
     }
 
-    public Product(String id, String name, int price) {
+    public Product(String id, String name, int price, Date createdTime) {
         this.id = id;
         this.name = name;
         this.price = price;
+        this.createdTime = createdTime;
     }
 
     public String getId() {
@@ -37,5 +40,13 @@ public class Product {
 
     public void setPrice(int price) {
         this.price = price;
+    }
+
+    public Date getCreatedTime() {
+        return createdTime;
+    }
+
+    public void setCreatedTime(Date createdTime) {
+        this.createdTime = createdTime;
     }
 }
