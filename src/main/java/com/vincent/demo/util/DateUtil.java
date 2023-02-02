@@ -4,10 +4,10 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class CommonUtil {
-    private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+public class DateUtil {
+    public static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
-    private CommonUtil() {
+    private DateUtil() {
     }
 
     public static Date toDate(String dateStr) {

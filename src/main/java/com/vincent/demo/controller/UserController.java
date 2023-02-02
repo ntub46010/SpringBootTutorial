@@ -3,19 +3,18 @@ package com.vincent.demo.controller;
 import com.vincent.demo.exception.OperateAbsentItemsException;
 import com.vincent.demo.model.DeleteByIdRequest;
 import com.vincent.demo.model.User;
+import com.vincent.demo.util.DateUtil;
+import com.vincent.demo.util.ToSearchTextEditor;
+import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.PostConstruct;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
-import static com.vincent.demo.util.CommonUtil.toDate;
 
 @RestController
 @RequestMapping(value = "/users", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -25,17 +24,11 @@ public class UserController {
     @PostConstruct
     private void initData() {
         var users = List.of(
-                new User("U1", "Vincent", "vz0101", "vincent@gmail.com", toDate("1996-01-01")),
-                new User("U2", "Ivy", "iv1231", "ivy@gmail.com", toDate("1994-12-31")),
-                new User("U3", "Dora", "dr0715", "dora@gmail.com", toDate("1998-07-15"))
+                new User("U1", "Vincent Chang", "vincent@gmail.com"),
+                new User("U2", "Ivy Chang", "ivy@gmail.com"),
+                new User("U3", "Dora Pan", "dora@gmail.com")
         );
         users.forEach(x -> userDB.put(x.getId(), x));
-    }
-
-    @GetMapping
-    public ResponseEntity<List<User>> getUsers() {
-        var users = new ArrayList<>(userDB.values());
-        return ResponseEntity.ok(users);
     }
 
     @DeleteMapping
@@ -45,10 +38,25 @@ public class UserController {
                 .filter(Predicate.not(userDB::containsKey))
                 .collect(Collectors.toList());
         if (!absentIds.isEmpty()) {
-            throw new OperateAbsentItemsException();
+            throw new OperateAbsentItemsException(absentIds);
         }
 
         itemIds.forEach(userDB::remove);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping
+    public ResponseEntity<List<User>> getUsers(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String email) {
+        var newName = Optional.ofNullable(name).orElse("");
+        var newEmail = Optional.ofNullable(email).orElse("");
+
+        var users = userDB.values()
+                .stream()
+                .filter(u -> u.getName().toLowerCase().contains(newName))
+                .filter(u -> u.getEmail().equalsIgnoreCase(newEmail))
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(users);
     }
 }

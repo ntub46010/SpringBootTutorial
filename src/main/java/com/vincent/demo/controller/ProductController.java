@@ -8,14 +8,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.PostConstruct;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static com.vincent.demo.util.CommonUtil.toDate;
+import static com.vincent.demo.util.DateUtil.toDate;
 
 @RestController
 @RequestMapping(value = "/products", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -34,12 +31,6 @@ public class ProductController {
         products.forEach(x -> productDB.put(x.getId(), x));
     }
 
-    @GetMapping
-    public ResponseEntity<List<Product>> getProducts() {
-        var products = new ArrayList<>(productDB.values());
-        return ResponseEntity.ok(products);
-    }
-
     @DeleteMapping
     public ResponseEntity<Void> deleteProducts(@RequestBody DeleteByIdRequest request) {
         var itemIds = request.getIds();
@@ -47,10 +38,28 @@ public class ProductController {
                 .filter(Predicate.not(productDB::containsKey))
                 .collect(Collectors.toList());
         if (!absentIds.isEmpty()) {
-            throw new OperateAbsentItemsException();
+            throw new OperateAbsentItemsException(absentIds);
         }
 
         itemIds.forEach(productDB::remove);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Product>> getProducts(
+            @RequestParam(required = false) Date createdFrom,
+            @RequestParam(required = false) Date createdTo,
+            @RequestParam(required = false) String name) {
+        var newCreatedFrom = Optional.ofNullable(createdFrom).orElse(new Date(0));
+        var newCreatedTo = Optional.ofNullable(createdTo).orElse(new Date());
+        var newName = Optional.ofNullable(name).orElse("");
+
+        var products = productDB.values()
+                .stream()
+                .filter(p -> p.getCreatedTime().after(newCreatedFrom))
+                .filter(p -> p.getCreatedTime().before(newCreatedTo))
+                .filter(p -> p.getName().toLowerCase().contains(newName))
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(products);
     }
 }
