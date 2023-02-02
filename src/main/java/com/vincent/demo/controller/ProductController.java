@@ -1,68 +1,69 @@
 package com.vincent.demo.controller;
 
-import com.vincent.demo.entity.Product;
-import org.springframework.http.HttpStatus;
+import com.vincent.demo.exception.OperateAbsentItemsException;
+import com.vincent.demo.model.BatchDeleteRequest;
+import com.vincent.demo.model.Product;
+import com.vincent.demo.util.CommonUtil;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.annotation.PostConstruct;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/products", produces = MediaType.APPLICATION_JSON_VALUE)
 public class ProductController {
-
-    private final List<Product> productDB = new ArrayList<>();
+    private final Map<String, Product> productDB = new LinkedHashMap<>();
 
     @PostConstruct
-    private void initDB() {
-        productDB.add(new Product("B0001", "Android Development (Java)", 380));
-        productDB.add(new Product("B0002", "Android Development (Kotlin)", 420));
-        productDB.add(new Product("B0003", "Data Structure (Java)", 250));
-        productDB.add(new Product("B0004", "Finance Management", 450));
-        productDB.add(new Product("B0005", "Human Resource Management", 330));
+    private void initData() {
+        var products = List.of(
+                Product.of("B1", "Android (Java)", "2022-01-15"),
+                Product.of("B2", "Android (Kotlin)", "2022-05-15"),
+                Product.of("B3", "Data Structure (Java)", "2022-09-15"),
+                Product.of("B4", "Finance Management", "2022-07-15"),
+                Product.of("B5", "Human Resource Management", "2022-03-15")
+        );
+        products.forEach(x -> productDB.put(x.getId(), x));
     }
 
-    @GetMapping("/products/{id}")
-    public ResponseEntity<Product> getProduct(@PathVariable("id") String id) {
-        Optional<Product> productOp = productDB.stream()
-                .filter(p -> p.getId().equals(id))
-                .findFirst();
-
-        if (productOp.isPresent()) {
-            Product product = productOp.get();
-            return ResponseEntity.ok().body(product);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    @PostMapping("/products")
-    public ResponseEntity<Product> createProduct(@RequestBody Product request) {
-        boolean isIdDuplicated = productDB.stream()
-                .anyMatch(p -> p.getId().equals(request.getId()));
-        if (isIdDuplicated) {
-            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build();
+    @DeleteMapping
+    public ResponseEntity<Void> deleteProducts(@RequestBody BatchDeleteRequest request) {
+        var itemIds = request.getIds();
+        var absentIds = itemIds.stream()
+                .filter(Predicate.not(productDB::containsKey))
+                .collect(Collectors.toList());
+        if (!absentIds.isEmpty()) {
+            throw new OperateAbsentItemsException(absentIds);
         }
 
-        Product product = new Product();
-        product.setId(request.getId());
-        product.setName(request.getName());
-        product.setPrice(request.getPrice());
-        productDB.add(product);
-
-        URI location = ServletUriComponentsBuilder
-                .fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(product.getId())
-                .toUri();
-
-        return ResponseEntity.created(location).body(product);
+        itemIds.forEach(productDB::remove);
+        return ResponseEntity.noContent().build();
     }
 
+    @GetMapping
+    public ResponseEntity<List<Product>> getProducts(
+            @RequestParam(required = false) String createdFrom,
+            @RequestParam(required = false) String createdTo,
+            @RequestParam(required = false) String name) {
+        var stream = productDB.values().stream();
+        if (createdFrom != null) {
+            var from = CommonUtil.toDate(createdFrom);
+            stream = stream.filter(p -> p.getCreatedTime().after(from));
+        }
+        if (createdTo != null) {
+            var to = CommonUtil.toDate(createdTo);
+            stream = stream.filter(p -> p.getCreatedTime().before(to));
+        }
+        if (name != null) {
+            var n = CommonUtil.toSearchText(name);
+            stream = stream.filter(p -> p.getName().toLowerCase().contains(n));
+        }
+
+        var products = stream.collect(Collectors.toList());
+        return ResponseEntity.ok(products);
+    }
 }
