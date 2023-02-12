@@ -1,6 +1,8 @@
-package com.vincent.demo.model;
+package com.vincent.demo.controller;
 
 import com.vincent.demo.exception.OperateAbsentItemsException;
+import com.vincent.demo.model.BatchDeleteRequest;
+import com.vincent.demo.model.User;
 import com.vincent.demo.util.CommonUtil;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
