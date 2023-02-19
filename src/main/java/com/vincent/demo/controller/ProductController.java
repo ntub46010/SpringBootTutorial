@@ -3,7 +3,6 @@ package com.vincent.demo.controller;
 import com.vincent.demo.exception.OperateAbsentItemsException;
 import com.vincent.demo.model.BatchDeleteRequest;
 import com.vincent.demo.model.Product;
-import com.vincent.demo.util.CommonUtil;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -46,21 +45,18 @@ public class ProductController {
 
     @GetMapping
     public ResponseEntity<List<Product>> getProducts(
-            @RequestParam(required = false) String createdFrom,
-            @RequestParam(required = false) String createdTo,
+            @RequestParam(required = false) Date createdFrom,
+            @RequestParam(required = false) Date createdTo,
             @RequestParam(required = false) String name) {
         var stream = productDB.values().stream();
         if (createdFrom != null) {
-            var from = CommonUtil.toDate(createdFrom);
-            stream = stream.filter(p -> p.getCreatedTime().after(from));
+            stream = stream.filter(p -> p.getCreatedTime().after(createdFrom));
         }
         if (createdTo != null) {
-            var to = CommonUtil.toDate(createdTo);
-            stream = stream.filter(p -> p.getCreatedTime().before(to));
+            stream = stream.filter(p -> p.getCreatedTime().before(createdTo));
         }
         if (name != null) {
-            var n = CommonUtil.toSearchText(name);
-            stream = stream.filter(p -> p.getName().toLowerCase().contains(n));
+            stream = stream.filter(p -> p.getName().toLowerCase().contains(name));
         }
 
         var products = stream.collect(Collectors.toList());

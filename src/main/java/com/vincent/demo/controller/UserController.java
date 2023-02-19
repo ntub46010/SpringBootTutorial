@@ -3,7 +3,6 @@ package com.vincent.demo.controller;
 import com.vincent.demo.exception.OperateAbsentItemsException;
 import com.vincent.demo.model.BatchDeleteRequest;
 import com.vincent.demo.model.User;
-import com.vincent.demo.util.CommonUtil;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -50,12 +49,10 @@ public class UserController {
             @RequestParam(required = false) String email) {
         var stream = userDB.values().stream();
         if (name != null) {
-            var n = CommonUtil.toSearchText(name);
-            stream = stream.filter(u -> u.getName().toLowerCase().contains(n));
+            stream = stream.filter(u -> u.getName().toLowerCase().contains(name));
         }
         if (email != null) {
-            var e = CommonUtil.toSearchText(email);
-            stream = stream.filter(u -> u.getEmail().equalsIgnoreCase(e));
+            stream = stream.filter(u -> u.getEmail().equalsIgnoreCase(email));
         }
 
         var users = stream.collect(Collectors.toList());
