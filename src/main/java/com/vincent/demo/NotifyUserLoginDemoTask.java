@@ -1,5 +1,7 @@
 package com.vincent.demo;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.Trigger;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -10,13 +12,13 @@ import org.springframework.scheduling.support.PeriodicTrigger;
 import org.springframework.stereotype.Component;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 @SuppressWarnings({"squid:S106"})
 @Component
 public class NotifyUserLoginDemoTask implements SchedulingConfigurer {
-    private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd hh:mm:ss");
+    private final Logger logger = LoggerFactory.getLogger(NotifyUserLoginDemoTask.class);
+    private final SimpleDateFormat sdf = new SimpleDateFormat("MM/dd hh:mm:ss");
     private int count = 1;
 
     // default value from DB or property file
@@ -30,27 +32,20 @@ public class NotifyUserLoginDemoTask implements SchedulingConfigurer {
         var name = "User_" + count;
         repository.insert(name);
 
-        System.out.printf("%s 登入%n", name);
+        logger.info("{} 登入", name);
         count++;
     }
 
     public void notifyLoginUser() {
-        System.out.printf("開始發送登入通知 %s%n", sdf.format(new Date()));
+        logger.info("開始發送登入通知");
 
         var activities = repository.findByNotNotified();
         activities.forEach(act -> {
-            var msg = generateMessage(act);
-            System.out.println(msg);
+            var timeStr = sdf.format(act.getLoginTime());
+            logger.info("親愛的 {}，您於 {} 登入本服務。", act.getName(), timeStr);
 
             act.setNotified(true);
         });
-    }
-
-    private String generateMessage(LoginActivity activity) {
-        var name = activity.getName();
-        var timeStr = sdf.format(activity.getLoginTime());
-
-        return String.format("%s 您好！您於 %s 登入本服務。", name, timeStr);
     }
 
     public void setNotifyConfig(TaskCycleConfig config) {
@@ -63,14 +58,20 @@ public class NotifyUserLoginDemoTask implements SchedulingConfigurer {
 
         Trigger trigger = triggerContext -> {
             if (config.getDelay() != null) {
-                return new PeriodicTrigger(config.getDelay(), TimeUnit.MILLISECONDS).nextExecutionTime(triggerContext);
+                var t = new PeriodicTrigger(config.getDelay(), TimeUnit.MILLISECONDS);
+                t.setFixedRate(false);
+                return t.nextExecutionTime(triggerContext);
+            } else if (config.getRate() != null) {
+                var t = new PeriodicTrigger(config.getRate(), TimeUnit.MILLISECONDS);
+                t.setFixedRate(true);
+                return t.nextExecutionTime(triggerContext);
             } else if (config.getCron() != null) {
                 return new CronTrigger(config.getCron()).nextExecutionTime(triggerContext);
             } else {
-                throw new RuntimeException("Scheduled task isn't configured correctly.");
+                throw new RuntimeException("Please provide at least one schedule parameter.");
             }
         };
 
-        registrar.addTriggerTask(new TriggerTask(runnable, trigger));
+        registrar.addTriggerTask(runnable, trigger);
     }
 }
