@@ -5,7 +5,7 @@ public class TaskCycleConfig {
     private Integer rate;
     private String cron;
 
-    public static TaskCycleConfig of(int delay) {
+    public static TaskCycleConfig ofDelay(int delay) {
         var config = new TaskCycleConfig();
         config.delay = delay;
 
