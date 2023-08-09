@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -26,13 +27,20 @@ public class LikeService {
     @Autowired
     private QueryHistoryService historyService;
 
-    @CacheEvict(cacheNames = "likeUserNames", key = "#postId")
+    @Caching(
+            evict = {
+                    @CacheEvict(cacheNames = "likeUserNames", key = "#postId"),
+                    @CacheEvict(cacheNames = "likeCount", key = "#p1")
+            }
+    )
     public void createLike(String userId, String postId) {
         var like = LikePO.of(userId, postId);
         likeDB.add(like);
     }
 
+    @Cacheable(cacheNames = "likeCount", key = "#postId")
     public long getLikeCount(String postId) {
+        logNotReadFromCache("likeCount", postId);
         return likeDB.stream()
                 .filter(like -> like.getPostId().equals(postId))
                 .count();

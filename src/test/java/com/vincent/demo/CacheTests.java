@@ -39,12 +39,12 @@ public class CacheTests {
     private CacheManager cacheManager;
 
     @Before
-    public void setup() {
+    public void clearData() {
         userService.deleteAll();
         likeService.deleteAll();
         postService.deleteAll();
         historyService.deleteAll();
-        Stream.of("user", "likeUserNames", "post").forEach(cacheName ->
+        Stream.of("user", "likeUserNames", "likeCount", "post").forEach(cacheName ->
                 Optional.ofNullable(cacheManager.getCache(cacheName)).ifPresent(Cache::clear));
     }
 
@@ -90,8 +90,10 @@ public class CacheTests {
         var updatedUser = UserPO.of(createdUser.getId(), "Vincent Zheng");
         userService.updateUser(updatedUser);
 
-        userService.getUser(createdUser.getId());
-        assertTrue(historyService.contains("user", createdUser.getId()));
+        var resultUser = userService.getUser(createdUser.getId());
+        assertEquals(updatedUser.getId(), resultUser.getId());
+        assertEquals(updatedUser.getName(), resultUser.getName());
+        assertFalse(historyService.contains("user", createdUser.getId()));
     }
 
     @Test

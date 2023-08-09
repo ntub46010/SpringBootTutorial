@@ -5,7 +5,6 @@ import com.vincent.demo.model.UserPO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -29,9 +28,10 @@ public class UserService {
         return user;
     }
 
-    @CacheEvict(cacheNames = "user", key = "#user.id")
-    public void updateUser(UserPO user) {
+    @CachePut(cacheNames = "user", key = "#user.id")
+    public UserPO updateUser(UserPO user) {
         userDB.put(user.getId(), user);
+        return user;
     }
 
     @Cacheable(cacheNames = "user", key = "#p0", unless = "#result.id.startsWith('test-')")
