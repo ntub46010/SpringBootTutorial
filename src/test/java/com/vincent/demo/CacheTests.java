@@ -55,6 +55,7 @@ public class CacheTests {
 
         assertEquals(createdUser.getId(), resultUser.getId());
         assertEquals(createdUser.getName(), resultUser.getName());
+        assertEquals(createdUser.getCreateTime(), resultUser.getCreateTime());
         assertFalse(historyService.contains("user", createdUser.getId()));
     }
 

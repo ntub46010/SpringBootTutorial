@@ -1,9 +1,8 @@
 package com.vincent.demo.model;
 
-import java.io.Serializable;
 import java.util.List;
 
-public class PostVO implements Serializable {
+public class PostVO {
     private String id;
     private String creatorId;
     private String title;

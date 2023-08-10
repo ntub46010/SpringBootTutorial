@@ -1,15 +1,17 @@
 package com.vincent.demo.model;
 
-import java.io.Serializable;
+import java.util.Date;
 
-public class UserPO implements Serializable {
+public class UserPO {
     private String id;
     private String name;
+    private Date createTime;
 
     public static UserPO of(String id, String name) {
         var user = new UserPO();
         user.id = id;
         user.name = name;
+        user.createTime = new Date();
 
         return user;
     }
@@ -20,5 +22,9 @@ public class UserPO implements Serializable {
 
     public String getName() {
         return name;
+    }
+
+    public Date getCreateTime() {
+        return createTime;
     }
 }
