@@ -32,8 +32,9 @@ public class LikeService {
                 .filter(like -> like.getPostId().equals(postId))
                 .map(LikePO::getUserId)
                 .toList();
+        var userIdToNameMap = userService.getUserIdToNameMap(userIds);
         var names = userIds.stream()
-                .map(uid -> userService.getUser(uid).getName())
+                .map(userIdToNameMap::get)
                 .toList();
         return new ArrayList<>(names);
     }

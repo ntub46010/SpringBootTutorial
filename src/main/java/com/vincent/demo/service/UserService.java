@@ -3,8 +3,11 @@ package com.vincent.demo.service;
 import com.vincent.demo.model.UserPO;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -22,6 +25,14 @@ public class UserService {
 
     public UserPO getUser(String id) {
         return userDB.get(id);
+    }
+
+    public Map<String, String> getUserIdToNameMap(Collection<String> ids) {
+        // In real project, you may have something like "UserRepository.findByIdIn(ids)". It just needs 1 DB operation.
+        return ids.stream()
+                .map(userDB::get)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toMap(UserPO::getId, UserPO::getName));
     }
 
     public void deleteAll() {
