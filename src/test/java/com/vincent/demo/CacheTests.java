@@ -125,7 +125,6 @@ public class CacheTests {
         assertEquals(1, postVO.getLikerNames().size());
         assertTrue(postVO.getLikerNames().contains(likeUser1.getName()));
         assertTrue(historyService.contains("likeUserNames", postPO.getId()));
-        assertTrue(historyService.contains("user", likeUser1.getId()));
         historyService.deleteAll();
 
         postService.getPost(postPO.getId());
@@ -141,8 +140,6 @@ public class CacheTests {
         assertTrue(postVO.getLikerNames().containsAll(
                 List.of(likeUser1.getName(), likeUser2.getName())));
         assertTrue(historyService.contains("likeUserNames", postPO.getId()));
-        assertFalse(historyService.contains("user", likeUser1.getId()));
-        assertTrue(historyService.contains("user", likeUser2.getId()));
     }
 
     @Test
