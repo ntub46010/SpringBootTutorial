@@ -1,7 +1,7 @@
 package com.vincent.demo;
 
 import com.vincent.demo.model.*;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 
