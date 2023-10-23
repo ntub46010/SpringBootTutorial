@@ -1,11 +1,12 @@
 package com.vincent.demo;
 
 import com.vincent.demo.client.CurrencyLayerClient;
-import com.vincent.demo.client.IpApiClient;
-import com.vincent.demo.model.IpInfoResponse;
+import com.vincent.demo.client.IpInfoClient;
+import com.vincent.demo.model.IpInfoClientResponse;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -17,48 +18,43 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 public class ApplicationTests {
 
-	@Autowired
-	private IpApiClient ipApiClient;
+    @Autowired
+    @Qualifier("ipApiClient")
+    private IpInfoClient ipInfoClient;
 
-	@Autowired
-	private CurrencyLayerClient currencyLayerClient;
+    @Autowired
+    private CurrencyLayerClient currencyLayerClient;
 
-	@Test
-	public void testIpApiClient_Public() {
-		IpInfoResponse ipInfo = ipApiClient.getIpInfo("208.67.222.222");
+    @Test
+    public void testIpApiClient_Public() {
+        IpInfoClientResponse ipInfo = ipInfoClient.getIpInfo("208.67.222.222");
 
-		assertFalse(ipInfo.isError());
-		assertNull(ipInfo.getReason());
-		assertFalse(ipInfo.isReserved());
+        assertNull(ipInfo.getErrorReason());
 
-		assertEquals("San Francisco", ipInfo.getCity());
-		assertEquals("USD", ipInfo.getCurrency());
-		assertEquals(-122.397966, ipInfo.getLongitude(), 0);
-		assertEquals(37.774778, ipInfo.getLatitude(), 0);
-		assertEquals("-0700", ipInfo.getUtcOffset());
-		assertEquals("+1", ipInfo.getCountryCallingCode());
-	}
+        assertEquals("San Francisco", ipInfo.getCity());
+        assertEquals("USD", ipInfo.getCurrency());
+        assertEquals(-122.397966, ipInfo.getLongitude(), 0);
+        assertEquals(37.774778, ipInfo.getLatitude(), 0);
+        assertEquals("-0700", ipInfo.getUtcOffset());
+        assertEquals("+1", ipInfo.getCallingCode());
+    }
 
-	@Test
-	public void testIpApiClient_Private() {
-		IpInfoResponse ipInfo = ipApiClient.getIpInfo("192.168.8.100");
+    @Test
+    public void testIpApiClient_Private() {
+        IpInfoClientResponse ipInfo = ipInfoClient.getIpInfo("192.168.8.100");
+        assertEquals("Reserved IP Address", ipInfo.getErrorReason());
+    }
 
-		assertTrue(ipInfo.isError());
-		assertEquals("Reserved IP Address", ipInfo.getReason());
-		assertTrue(ipInfo.isReserved());
-	}
+    @Test
+    public void testCurrencyLayerClient() {
+        var sourceCurrency = "USD";
+        var targetCurrencies = List.of("TWD", "JPY", "CNY", "EUR");
+        var exchangeRateRes = currencyLayerClient.getLiveExchangeRate(sourceCurrency, targetCurrencies);
 
-	@Test
-	public void testCurrencyLayerClient() {
-		var sourceCurrency = "USD";
-		var targetCurrencies = List.of("TWD", "JPY", "CNY", "EUR");
-		var exchangeRateRes = currencyLayerClient.getLiveExchangeRate(sourceCurrency, targetCurrencies);
-
-		for (var target : targetCurrencies) {
-			// USDTWD, USDJPY ...
-			var pair = sourceCurrency + target;
-			var rate = exchangeRateRes.getQuotes().get(pair);
-			assertTrue(rate > 0);
-		}
-	}
+        for (var target : targetCurrencies) {
+            var pair = sourceCurrency + target;
+            var rate = exchangeRateRes.getQuotes().get(pair);
+            assertTrue(rate > 0);
+        }
+    }
 }

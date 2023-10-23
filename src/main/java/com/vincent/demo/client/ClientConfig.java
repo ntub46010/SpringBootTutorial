@@ -10,8 +10,8 @@ import java.time.Duration;
 @Configuration
 public class ClientConfig {
 
-    @Bean
-    public IpApiClient ipApiClient(
+    @Bean(name = "ipApiClient")
+    public IpInfoClient ipApiClient(
             @Value("${client.timeout.second}") int timeoutSecond
     ) {
         var restTemplate = new RestTemplateBuilder()
