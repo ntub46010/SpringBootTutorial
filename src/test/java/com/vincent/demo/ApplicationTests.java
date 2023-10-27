@@ -1,6 +1,6 @@
 package com.vincent.demo;
 
-import com.vincent.demo.client.CurrencyLayerClient;
+import com.vincent.demo.client.ExchangeRateClient;
 import com.vincent.demo.client.IpInfoClient;
 import com.vincent.demo.model.IpInfoClientResponse;
 import org.junit.Test;
@@ -23,7 +23,8 @@ public class ApplicationTests {
     private IpInfoClient ipInfoClient;
 
     @Autowired
-    private CurrencyLayerClient currencyLayerClient;
+    @Qualifier("currencyLayerClient")
+    private ExchangeRateClient exchangeRateClient;
 
     @Test
     public void testIpApiClient_Public() {
@@ -49,11 +50,13 @@ public class ApplicationTests {
     public void testCurrencyLayerClient() {
         var sourceCurrency = "USD";
         var targetCurrencies = List.of("TWD", "JPY", "CNY", "EUR");
-        var exchangeRateRes = currencyLayerClient.getLiveExchangeRate(sourceCurrency, targetCurrencies);
+        var exchangeRateRes = exchangeRateClient.getLiveExchangeRate(sourceCurrency, targetCurrencies);
+
+        assertEquals(sourceCurrency, exchangeRateRes.getSource());
+        assertEquals(targetCurrencies.size(), exchangeRateRes.getExchangeRateTable().size());
 
         for (var target : targetCurrencies) {
-            var pair = sourceCurrency + target;
-            var rate = exchangeRateRes.getQuotes().get(pair);
+            var rate = exchangeRateRes.getRate(target);
             assertTrue(rate > 0);
         }
     }

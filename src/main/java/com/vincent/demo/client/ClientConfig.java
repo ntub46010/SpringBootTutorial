@@ -21,7 +21,7 @@ public class ClientConfig {
         return new IpApiClient(restTemplate);
     }
 
-    @Bean
+    @Bean(name = "currencyLayerClient")
     public CurrencyLayerClient currencyLayerClient(
             @Value("${client.timeout.second}") int timeoutSecond,
             @Value("${currency-layer-client.access-key}") String accessKey

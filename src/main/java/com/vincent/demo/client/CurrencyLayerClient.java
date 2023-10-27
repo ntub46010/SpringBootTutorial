@@ -1,12 +1,13 @@
 package com.vincent.demo.client;
 
 import com.vincent.demo.model.CurrencyLayerResponse;
+import com.vincent.demo.model.ExchangeRateClientResponse;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Collection;
 import java.util.Map;
 
-public class CurrencyLayerClient {
+public class CurrencyLayerClient implements ExchangeRateClient{
     private final RestTemplate restTemplate;
     private final String accessKey;
 
@@ -15,7 +16,7 @@ public class CurrencyLayerClient {
         this.accessKey = accessKey;
     }
 
-    public CurrencyLayerResponse getLiveExchangeRate(String sourceCurrency, Collection<String> targetCurrencies) {
+    public ExchangeRateClientResponse getLiveExchangeRate(String sourceCurrency, Collection<String> targetCurrencies) {
         var uriVariables = Map.of(
                 "source", sourceCurrency,
                 "currencies", String.join(",", targetCurrencies),
