@@ -1,5 +1,6 @@
-package com.vincent.demo;
+package com.vincent.demo.service;
 
+import com.vincent.demo.UserRepository;
 import com.vincent.demo.model.AppUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.User;

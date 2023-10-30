@@ -1,5 +1,9 @@
 package com.vincent.demo;
 
+import com.vincent.demo.service.TokenService;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -25,10 +29,11 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.POST, "/users").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/users/?*").hasAnyAuthority("ADMIN", "NORMAL")
                                 .requestMatchers(HttpMethod.GET, "/users").hasAuthority("ADMIN")
+                                .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/parse-token").permitAll()
                                 .anyRequest().authenticated()
                 )
-                .csrf(AbstractHttpConfigurer::disable)
-                .formLogin();
+                .csrf(AbstractHttpConfigurer::disable);
         return http.build();
     }
 
@@ -46,5 +51,16 @@ public class SecurityConfig {
         provider.setUserDetailsService(userDetailsService);
         provider.setPasswordEncoder(passwordEncoder);
         return provider;
+    }
+
+    @Bean
+    public TokenService tokenService(
+            @Value("${security.jwt.key}") String key,
+            @Value("${security.access-token-ttl-seconds}") int accessTokenTtlSeconds,
+            AuthenticationProvider authenticationProvider
+    ) {
+        var jwtSecretKey = Keys.hmacShaKeyFor(key.getBytes());
+        var jwtParser = Jwts.parserBuilder().setSigningKey(jwtSecretKey).build();
+        return new TokenService(jwtSecretKey, jwtParser, accessTokenTtlSeconds, authenticationProvider);
     }
 }
