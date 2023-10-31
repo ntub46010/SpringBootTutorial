@@ -30,6 +30,7 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.GET, "/users/?*").hasAnyAuthority("ADMIN", "NORMAL")
                                 .requestMatchers(HttpMethod.GET, "/users").hasAuthority("ADMIN")
                                 .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/auth/refresh-token").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/parse-token").permitAll()
                                 .anyRequest().authenticated()
                 )
@@ -57,10 +58,15 @@ public class SecurityConfig {
     public TokenService tokenService(
             @Value("${security.jwt.key}") String key,
             @Value("${security.access-token-ttl-seconds}") int accessTokenTtlSeconds,
+            @Value("${security.refresh-token-ttl-seconds}") int refreshTokenTtlSeconds,
             AuthenticationProvider authenticationProvider
     ) {
         var jwtSecretKey = Keys.hmacShaKeyFor(key.getBytes());
         var jwtParser = Jwts.parserBuilder().setSigningKey(jwtSecretKey).build();
-        return new TokenService(jwtSecretKey, jwtParser, accessTokenTtlSeconds, authenticationProvider);
+        return new TokenService(
+                jwtSecretKey, jwtParser,
+                accessTokenTtlSeconds, refreshTokenTtlSeconds,
+                authenticationProvider
+        );
     }
 }

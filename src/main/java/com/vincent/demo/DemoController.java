@@ -47,6 +47,15 @@ public class DemoController {
         return ResponseEntity.ok(res);
     }
 
+    @PostMapping("/auth/refresh-token")
+    public ResponseEntity<Map<String, String>> refreshAccessToken(@RequestBody Map<String, String> request) {
+        String refreshToken = request.get("refreshToken");
+        String accessToken = tokenService.refreshAccessToken(refreshToken);
+        Map<String, String> res = Map.of("accessToken", accessToken);
+
+        return ResponseEntity.ok(res);
+    }
+
     @GetMapping("/parse-token")
     public ResponseEntity<Map<String, Object>> parseToken(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorization) {
         Map<String, Object> jwtPayload = tokenService.parseToken(authorization);
