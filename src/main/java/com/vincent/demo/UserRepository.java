@@ -56,4 +56,8 @@ public class UserRepository {
         user.setPassword(encodedPwd);
         idToUserMap.put(user.getId(), user);
     }
+
+    public void deleteById(String id) {
+        idToUserMap.remove(id);
+    }
 }

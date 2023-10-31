@@ -10,6 +10,7 @@ public class AppUser {
     private boolean enabled = true;
     private boolean premium = false;
     private LocalDate trailExpiration;
+    private String creatorId;
 
     public static AppUser getTestAdminUser() {
         var user = new AppUser();
@@ -97,5 +98,13 @@ public class AppUser {
 
     public void setTrailExpiration(LocalDate trailExpiration) {
         this.trailExpiration = trailExpiration;
+    }
+
+    public String getCreatorId() {
+        return creatorId;
+    }
+
+    public void setCreatorId(String creatorId) {
+        this.creatorId = creatorId;
     }
 }
