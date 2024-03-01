@@ -1,18 +1,17 @@
-package com.vincent.demo.entity;
+package com.example.demo.model;
 
 public class Product {
     private String id;
     private String name;
     private int price;
 
-    public Product() {
+    public static Product of(String id, String name, int price) {
+        var p = new Product();
+        p.id = id;
+        p.name = name;
+        p.price = price;
 
-    }
-
-    public Product(String id, String name, int price) {
-        this.id = id;
-        this.name = name;
-        this.price = price;
+        return p;
     }
 
     public String getId() {
