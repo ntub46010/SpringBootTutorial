@@ -2,7 +2,7 @@ package com.example.demo.param;
 
 public class ProductRequestParameter {
     private String searchKey;
-    private String orderField;
+    private String sortField;
     private String sortDir;
 
     public String getSearchKey() {
@@ -13,12 +13,12 @@ public class ProductRequestParameter {
         this.searchKey = searchKey;
     }
 
-    public String getOrderField() {
-        return orderField;
+    public String getSortField() {
+        return sortField;
     }
 
-    public void setOrderField(String orderField) {
-        this.orderField = orderField;
+    public void setSortField(String sortField) {
+        this.sortField = sortField;
     }
 
     public String getSortDir() {

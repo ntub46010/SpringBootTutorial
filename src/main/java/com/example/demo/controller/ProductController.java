@@ -80,14 +80,14 @@ public class ProductController {
     public ResponseEntity<List<Product>> getProducts(
             @ModelAttribute ProductRequestParameter param
     ) {
-        var orderField = param.getOrderField();
+        var sortField = param.getSortField();
         var sortDir = param.getSortDir();
         var keyword = param.getSearchKey();
 
         Comparator<Product> comparator;
-        if ("name".equals(orderField)) {
+        if ("name".equals(sortField)) {
             comparator = Comparator.comparing(x -> x.getName().toLowerCase());
-        } else if ("price".equals(orderField)) {
+        } else if ("price".equals(sortField)) {
             comparator = Comparator.comparing(Product::getPrice);
         } else {
             comparator = (a, b) -> 0;
