@@ -1,7 +1,7 @@
 package com.example.demo.param;
 
 public class ProductRequestParameter {
-    private String searchKey;
+    private String searchKey = "";
     private String sortField;
     private String sortDir;
 
