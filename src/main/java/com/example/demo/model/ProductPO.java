@@ -24,6 +24,7 @@ public class ProductPO {
 
     public static ProductPO of(ProductRequest req) {
         var po = new ProductPO();
+        po.id = req.getId();
         po.name = req.getName();
         po.price = req.getPrice();
         po.creatorId = req.getCreatorId();

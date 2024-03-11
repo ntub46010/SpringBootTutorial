@@ -5,11 +5,13 @@ import com.example.demo.exception.UnprocessableEntityException;
 import com.example.demo.model.ProductPO;
 import com.example.demo.model.ProductRequest;
 import com.example.demo.model.ProductVO;
+import com.example.demo.model.UserPO;
 import com.example.demo.param.ProductRequestParameter;
 import com.example.demo.repository.ProductRepository;
 import com.example.demo.repository.UserRepository;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ProductService {
     // Should use @Autowired
@@ -52,9 +54,21 @@ public class ProductService {
 
     public List<ProductVO> get(ProductRequestParameter param) {
         var products = productRepository.getMany(param);
+        var userIds = products
+                .stream()
+                .map(ProductPO::getCreatorId)
+                .collect(Collectors.toSet());
+        var userIdNameMap = userIds
+                .stream()
+                .map(userRepository::getOneById)
+                .collect(Collectors.toMap(UserPO::getId, UserPO::getName));
         return products
                 .stream()
-                .map(ProductVO::of)
+                .map(po -> {
+                    var vo = ProductVO.of(po);
+                    vo.setCreatorName(userIdNameMap.get(po.getCreatorId()));
+                    return vo;
+                })
                 .toList();
     }
 
