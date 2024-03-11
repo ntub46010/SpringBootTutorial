@@ -11,24 +11,24 @@ public class ProductPO {
     private long updatedTime;
 
     public static ProductPO of(String id, String name, int price, String creatorId) {
-        var p = new ProductPO();
-        p.id = id;
-        p.name = name;
-        p.price = price;
-        p.creatorId = creatorId;
-        p.createdTime = Instant.now().getEpochSecond();
-        p.updatedTime = p.createdTime;
+        var po = new ProductPO();
+        po.id = id;
+        po.name = name;
+        po.price = price;
+        po.creatorId = creatorId;
+        po.createdTime = Instant.now().getEpochSecond();
+        po.updatedTime = po.createdTime;
 
-        return p;
+        return po;
     }
 
     public static ProductPO of(ProductRequest req) {
-        var p = new ProductPO();
-        p.name = req.getName();
-        p.price = req.getPrice();
-        p.creatorId = req.getCreatorId();
+        var po = new ProductPO();
+        po.name = req.getName();
+        po.price = req.getPrice();
+        po.creatorId = req.getCreatorId();
 
-        return p;
+        return po;
     }
 
     public String getId() {

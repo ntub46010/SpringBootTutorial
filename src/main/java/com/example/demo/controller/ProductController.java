@@ -14,7 +14,8 @@ import java.util.Map;
 @RestController
 @RequestMapping(path = "/products")
 public class ProductController {
-    private final ProductService productService = new ProductService();
+    // Should use @Autowired
+    private static final ProductService productService = new ProductService();
 
     @GetMapping("/{id}")
     public ResponseEntity<ProductVO> getProduct(@PathVariable("id") String productId) {

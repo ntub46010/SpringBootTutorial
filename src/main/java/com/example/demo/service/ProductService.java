@@ -12,8 +12,9 @@ import com.example.demo.repository.UserRepository;
 import java.util.List;
 
 public class ProductService {
-    private final ProductRepository productRepository = new ProductRepository();
-    private final UserRepository userRepository = new UserRepository();
+    // Should use @Autowired
+    private static final ProductRepository productRepository = new ProductRepository();
+    private static final UserRepository userRepository = new UserRepository();
 
     public ProductVO getProductVO(String id) {
         var productPO = getProductPO(id);
@@ -26,8 +27,8 @@ public class ProductService {
     }
 
     public ProductPO createProduct(ProductRequest productReq) {
-        var user = userRepository.getOneById(productReq.getCreatorId());
-        if (user == null) {
+        var userPO = userRepository.getOneById(productReq.getCreatorId());
+        if (userPO == null) {
             throw new UnprocessableEntityException("Product creator " + productReq.getCreatorId() + " doesn't exist.");
         }
 
@@ -58,11 +59,11 @@ public class ProductService {
     }
 
     private ProductPO getProductPO(String id) {
-        var productPO = productRepository.getOneById(id);
-        if (productPO == null) {
+        var po = productRepository.getOneById(id);
+        if (po == null) {
             throw new NotFoundException("Product " + id + " doesn't exist.");
         }
 
-        return productPO;
+        return po;
     }
 }
