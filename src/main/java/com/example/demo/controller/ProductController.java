@@ -53,7 +53,7 @@ public class ProductController {
     public ResponseEntity<List<ProductVO>> getProducts(
             @ModelAttribute ProductRequestParameter param
     ) {
-        var products = productService.get(param);
+        var products = productService.getProductVOs(param);
         return ResponseEntity.ok(products);
     }
 }

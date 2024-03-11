@@ -49,17 +49,16 @@ public class ProductService {
         productRepository.deleteById(productPO.getId());
     }
 
-    public List<ProductVO> get(ProductRequestParameter param) {
-        var products = productRepository.getMany(param);
-        var userIds = products
+    public List<ProductVO> getProductVOs(ProductRequestParameter param) {
+        var productPOs = productRepository.getMany(param);
+        var userIds = productPOs
                 .stream()
                 .map(ProductPO::getCreatorId)
-                .collect(Collectors.toSet());
-        var userIdNameMap = userIds
+                .toList();
+        var userIdNameMap = userRepository.getManyByIds(userIds)
                 .stream()
-                .map(userRepository::getOneById)
                 .collect(Collectors.toMap(UserPO::getId, UserPO::getName));
-        return products
+        return productPOs
                 .stream()
                 .map(po -> {
                     var vo = ProductVO.of(po);
