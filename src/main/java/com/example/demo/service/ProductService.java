@@ -2,10 +2,7 @@ package com.example.demo.service;
 
 import com.example.demo.exception.NotFoundException;
 import com.example.demo.exception.UnprocessableEntityException;
-import com.example.demo.model.ProductPO;
-import com.example.demo.model.ProductRequest;
-import com.example.demo.model.ProductVO;
-import com.example.demo.model.UserPO;
+import com.example.demo.model.*;
 import com.example.demo.param.ProductRequestParameter;
 import com.example.demo.repository.ProductRepository;
 import com.example.demo.repository.UserRepository;
@@ -28,7 +25,7 @@ public class ProductService {
         return productVO;
     }
 
-    public ProductPO createProduct(ProductRequest productReq) {
+    public ProductPO createProduct(ProductCreateRequest productReq) {
         var userPO = userRepository.getOneById(productReq.getCreatorId());
         if (userPO == null) {
             throw new UnprocessableEntityException("Product creator " + productReq.getCreatorId() + " doesn't exist.");
@@ -40,7 +37,7 @@ public class ProductService {
         return productPO;
     }
 
-    public void updateProduct(String id, ProductRequest productReq) {
+    public void updateProduct(String id, ProductUpdateRequest productReq) {
         var productPO = getProductPO(id);
         productPO.setName(productReq.getName());
         productPO.setPrice(productReq.getPrice());

@@ -22,7 +22,7 @@ public class ProductPO {
         return po;
     }
 
-    public static ProductPO of(ProductRequest req) {
+    public static ProductPO of(ProductCreateRequest req) {
         var po = new ProductPO();
         po.id = req.getId();
         po.name = req.getName();

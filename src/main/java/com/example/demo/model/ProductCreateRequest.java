@@ -1,6 +1,6 @@
 package com.example.demo.model;
 
-public class ProductRequest {
+public class ProductCreateRequest {
     private String id;
     private String name;
     private int price;

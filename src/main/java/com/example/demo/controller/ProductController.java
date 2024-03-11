@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
-import com.example.demo.model.ProductRequest;
+import com.example.demo.model.ProductCreateRequest;
+import com.example.demo.model.ProductUpdateRequest;
 import com.example.demo.model.ProductVO;
 import com.example.demo.param.ProductRequestParameter;
 import com.example.demo.service.ProductService;
@@ -24,7 +25,7 @@ public class ProductController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> createProduct(@RequestBody ProductRequest request) {
+    public ResponseEntity<Void> createProduct(@RequestBody ProductCreateRequest request) {
         var product = productService.createProduct(request);
 
         var uri = ServletUriComponentsBuilder
@@ -37,7 +38,7 @@ public class ProductController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Void> updateProduct(
-            @PathVariable("id") String productId, @RequestBody ProductRequest request) {
+            @PathVariable("id") String productId, @RequestBody ProductUpdateRequest request) {
         productService.updateProduct(productId, request);
         return ResponseEntity.noContent().build();
     }
