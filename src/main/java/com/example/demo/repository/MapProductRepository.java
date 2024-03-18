@@ -3,12 +3,14 @@ package com.example.demo.repository;
 import com.example.demo.exception.UnprocessableEntityException;
 import com.example.demo.model.ProductPO;
 import com.example.demo.param.ProductRequestParameter;
+import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Stream;
 
-public class ProductRepository {
+@Repository("mapProductRepository")
+public class MapProductRepository implements IProductRepository {
     private static final Map<String, ProductPO> productMap = new HashMap<>();
 
     static {

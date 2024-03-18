@@ -5,6 +5,7 @@ import com.example.demo.model.ProductUpdateRequest;
 import com.example.demo.model.ProductVO;
 import com.example.demo.param.ProductRequestParameter;
 import com.example.demo.service.ProductService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -15,8 +16,9 @@ import java.util.Map;
 @RestController
 @RequestMapping(path = "/products")
 public class ProductController {
-    // Should use @Autowired
-    private static final ProductService productService = new ProductService();
+
+    @Autowired
+    private ProductService productService;
 
     @GetMapping("/{id}")
     public ResponseEntity<ProductVO> getProduct(@PathVariable("id") String productId) {

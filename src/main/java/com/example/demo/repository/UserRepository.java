@@ -1,6 +1,7 @@
 package com.example.demo.repository;
 
 import com.example.demo.model.UserPO;
+import org.springframework.stereotype.Repository;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -8,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
+@Repository
 public class UserRepository {
     private static final Map<String, UserPO> userMap = new HashMap<>();
 

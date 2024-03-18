@@ -4,16 +4,26 @@ import com.example.demo.exception.NotFoundException;
 import com.example.demo.exception.UnprocessableEntityException;
 import com.example.demo.model.*;
 import com.example.demo.param.ProductRequestParameter;
-import com.example.demo.repository.ProductRepository;
+import com.example.demo.repository.IProductRepository;
 import com.example.demo.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Service
 public class ProductService {
-    // Should use @Autowired
-    private static final ProductRepository productRepository = new ProductRepository();
-    private static final UserRepository userRepository = new UserRepository();
+    private final IProductRepository productRepository;
+    private final UserRepository userRepository;
+
+    @Autowired
+    public ProductService(@Qualifier("mapProductRepository") IProductRepository productRepository,
+                          UserRepository userRepository) {
+        this.productRepository = productRepository;
+        this.userRepository = userRepository;
+    }
 
     public ProductVO getProductVO(String id) {
         var productPO = getProductPO(id);
