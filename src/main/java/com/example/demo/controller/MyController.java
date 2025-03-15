@@ -3,8 +3,12 @@ package com.example.demo.controller;
 import com.example.demo.model.Certificate;
 import com.example.demo.model.Contact;
 import com.example.demo.model.Student;
+import com.example.demo.param.StudentRequestParam;
 import com.example.demo.repository.StudentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -108,5 +112,47 @@ public class MyController {
         studentRepository.deleteAll();
         studentRepository.insert(List.of(s1, s2, s3));
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/students")
+    public ResponseEntity<List<Student>> getStudents(@ModelAttribute StudentRequestParam param) {
+        Sort sort = createSort(param.getSortField(), param.getSortDirection());
+        Pageable pageable = createPageable(param.getPage(), param.getSize(), sort);
+        List<Student> students = studentRepository.find(pageable);
+
+        return ResponseEntity.ok(students);
+    }
+
+    private Sort createSort(String field, String direction) {
+        if (field == null && direction == null) {
+            return Sort.unsorted();
+        }
+
+        if (field == null ^ direction == null) {
+            return Sort.unsorted();
+        }
+
+        Sort.Order order;
+        if ("asc".equalsIgnoreCase(direction)) {
+            order = Sort.Order.asc(field);
+        } else if ("desc".equalsIgnoreCase(direction)) {
+            order = Sort.Order.desc(field);
+        } else {
+            return Sort.unsorted();
+        }
+
+        return Sort.by(List.of(order));
+    }
+
+    private Pageable createPageable(Integer page, Integer size, Sort sort) {
+        if (page == null && size == null) {
+            return Pageable.unpaged(sort);
+        }
+
+        if (page == null ^ size == null) {
+            return Pageable.unpaged(sort);
+        }
+
+        return PageRequest.of(page, size, sort);
     }
 }
