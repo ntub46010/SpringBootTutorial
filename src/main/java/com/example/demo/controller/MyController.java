@@ -1,17 +1,22 @@
 package com.example.demo.controller;
 
 import com.example.demo.model.entity.Contact;
+import com.example.demo.model.entity.Course;
 import com.example.demo.model.entity.Department;
 import com.example.demo.model.entity.Student;
 import com.example.demo.model.request.StudentRequest;
+import com.example.demo.model.request.TakeCourseRequest;
+import com.example.demo.model.response.CourseResponse;
 import com.example.demo.model.response.StudentResponse;
 import com.example.demo.repository.ContactRepository;
+import com.example.demo.repository.CourseRepository;
 import com.example.demo.repository.DepartmentRepository;
 import com.example.demo.repository.StudentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.*;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -30,6 +35,9 @@ public class MyController {
 
     @Autowired
     private DepartmentRepository departmentRepository;
+
+    @Autowired
+    private CourseRepository courseRepository;
 
     @GetMapping("/students")
     public ResponseEntity<List<StudentResponse>> getStudents(
@@ -111,6 +119,85 @@ public class MyController {
                 .stream()
                 .map(s -> {
                     var res = new StudentResponse();
+                    res.setId(s.getId());
+                    res.setName(s.getName());
+
+                    return res;
+                })
+                .toList();
+
+        return ResponseEntity.ok(responses);
+    }
+
+    @PostMapping("/students/{id}/courses")
+    public ResponseEntity<Void> takeCourse(
+            @PathVariable Long id, @RequestBody TakeCourseRequest request
+    ) {
+        var studentOp = studentRepository.findById(id);
+        if (studentOp.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        var targetCourses = courseRepository.findAllById(request.getCourseIds());
+
+        var student = studentOp.get();
+        var existingCourses = student.getCourses();
+        existingCourses.addAll(targetCourses);
+        studentRepository.save(student);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/students/{studentId}/courses/{courseId}")
+    public ResponseEntity<List<CourseResponse>> deleteStudentTakingCourses(
+            @PathVariable Long studentId, @PathVariable Long courseId
+    ) {
+        var studentOp = studentRepository.findById(studentId);
+        if (studentOp.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        var student = studentOp.get();
+        student.getCourses().removeIf(c -> c.getId().equals(courseId));
+        studentRepository.save(student);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/students/{id}/courses")
+    public ResponseEntity<List<CourseResponse>> getStudentTakingCourses(@PathVariable Long id) {
+        var studentOp = studentRepository.findById(id);
+        if (studentOp.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        var student = studentOp.get();
+        var courses = student.getCourses()
+                .stream()
+                .map(c -> {
+                    var res = new CourseResponse();
+                    res.setId(c.getId());
+                    res.setName(c.getName());
+
+                    return res;
+                })
+                .toList();
+
+        return ResponseEntity.ok(courses);
+    }
+
+    @GetMapping("/courses/{id}/students")
+    public ResponseEntity<List<StudentResponse>> getCourseTakingStudents(@PathVariable Long id) {
+        Optional<Course> courseOp = courseRepository.findById(id);
+        if (courseOp.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Set<Student> students = courseOp.get().getStudents();
+        List<StudentResponse> responses = students
+                .stream()
+                .map(s -> {
+                    StudentResponse res = new StudentResponse();
                     res.setId(s.getId());
                     res.setName(s.getName());
 
