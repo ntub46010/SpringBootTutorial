@@ -1,14 +1,15 @@
 package com.example.demo.repository;
 
 import com.example.demo.model.User;
-import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
 import java.util.List;
 
-@Repository
 public class ListUserRepository implements IUserRepository {
-    private static final List<User> userList = new ArrayList<>();
+    private final List<User> userList;
+
+    public ListUserRepository(List<User> userList) {
+        this.userList = userList;
+    }
 
     public void insert(User user) {
         var isExisting = userList

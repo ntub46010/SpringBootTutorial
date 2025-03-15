@@ -1,14 +1,15 @@
 package com.example.demo.repository;
 
 import com.example.demo.model.User;
-import org.springframework.stereotype.Repository;
 
-import java.util.HashMap;
 import java.util.Map;
 
-@Repository
 public class MapUserRepository implements IUserRepository {
-    private static final Map<String, User> userMap = new HashMap<>();
+    private final Map<String, User> userMap;
+
+    public MapUserRepository(Map<String, User> userMap) {
+        this.userMap = userMap;
+    }
 
     public void insert(User user) {
         if (userMap.containsKey(user.getId())) {
