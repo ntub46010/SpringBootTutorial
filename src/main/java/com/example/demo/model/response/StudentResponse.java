@@ -5,6 +5,7 @@ public class StudentResponse {
     private String name;
     private String email;
     private String phone;
+    private String departmentName;
 
     public Long getId() {
         return id;
@@ -36,5 +37,13 @@ public class StudentResponse {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public String getDepartmentName() {
+        return departmentName;
+    }
+
+    public void setDepartmentName(String departmentName) {
+        this.departmentName = departmentName;
     }
 }

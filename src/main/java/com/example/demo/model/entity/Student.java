@@ -15,6 +15,10 @@ public class Student {
     @JoinColumn(name = "contact_id", referencedColumnName = "id", nullable = false, unique = true)
     private Contact contact;
 
+    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST})
+    @JoinColumn(name = "dept_id", referencedColumnName = "id", nullable = false)
+    private Department department;
+
     public Long getId() {
         return id;
     }
@@ -37,5 +41,13 @@ public class Student {
 
     public void setContact(Contact contact) {
         this.contact = contact;
+    }
+
+    public Department getDepartment() {
+        return department;
+    }
+
+    public void setDepartment(Department department) {
+        this.department = department;
     }
 }
