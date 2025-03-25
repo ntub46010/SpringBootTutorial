@@ -20,7 +20,7 @@ public interface IProductRepository {
     default Comparator<Product> getSortComparator(ProductRequestParameter param) {
         Comparator<Product> comparator;
         if ("name".equalsIgnoreCase(param.getSortField())) {
-            comparator = Comparator.comparing(Product::getName);
+            comparator = Comparator.comparing(p -> p.getName().toLowerCase());
         } else if ("price".equalsIgnoreCase(param.getSortField())) {
             comparator = Comparator.comparing(Product::getPrice);
         } else {

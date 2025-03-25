@@ -36,7 +36,7 @@ public class ProductController {
     @PostMapping
     public ResponseEntity<Void> create(@RequestBody Product product) {
         if (product.getName() == null || product.getPrice() < 0) {
-            return ResponseEntity.unprocessableEntity().build();
+            return ResponseEntity.badRequest().build();
         }
 
         productRepository.insert(product);
