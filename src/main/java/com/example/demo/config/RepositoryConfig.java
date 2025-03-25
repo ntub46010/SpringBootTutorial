@@ -30,8 +30,11 @@ public class RepositoryConfig {
         if ("map".equalsIgnoreCase(storage)) {
             var userMap = new HashMap<String, User>();
             users.forEach(u -> userMap.put(u.getId(), u));
+            System.out.println("Create MapProductRepository.");
+
             return new MapUserRepository(userMap);
         } else if ("list".equalsIgnoreCase(storage)) {
+            System.out.println("Create ListProductRepository.");
             return new ListUserRepository(users);
         } else {
             throw new IllegalArgumentException("Please provide correct user repository storage type.");
