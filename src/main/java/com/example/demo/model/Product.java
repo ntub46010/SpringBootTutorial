@@ -10,6 +10,7 @@ public class Product {
     @Null
     private String id;
 
+    @Pattern(regexp = "^[A-Za-z0-9 ]*$")
     @NotBlank
     private String name;
 
