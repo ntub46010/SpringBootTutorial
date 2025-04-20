@@ -22,7 +22,7 @@ public class ProductController {
     }
 
     @GetMapping
-    public ResponseEntity<Void> getProducts(@Valid @ModelAttribute BaseParameter param) {
+    public ResponseEntity<List<Product>> getProducts(@Valid @ModelAttribute BaseParameter param) {
         return ResponseEntity.ok().build();
     }
 
